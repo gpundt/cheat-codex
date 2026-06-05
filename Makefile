@@ -34,16 +34,25 @@ prep_build_dirs:
 	@mkdir -p $(TUI_BUILD_OUTPUT_DIR)
 	$(call successful)
 
-build_memory_bins:
+build_memory_bins:						## Builds memory operation binary
 	$(call start_step_message,"Building Core Memory Operation Binaries '$(RUST_DIR)'")
-	@cd $(RUST_DIR) && cargo build --release
+	@rustup target add x86_64-pc-windows-gnu x86_64-unknown-linux-gnu
+	@cd $(RUST_DIR) && cargo build --release --target x86_64-pc-windows-gnu
+	@cd $(RUST_DIR) && cargo build --release --target x86_64-unknown-linux-gnu
 	$(call successful)
 
-build_tui: build_memory_bins
+build_tui: build_memory_bins			## Builds TUI binary
 	$(call start_step_message,"Building TUI '$(TUI_DIR)'")
 	@cd $(TUI_DIR) && \
 	go mod tidy && go mod vendor && \
 	go build -mod=vendor -ldflags="-s -w" -o $(TUI_BUILD_OUTPUT_FILE) cmd 
+	$(call successful)
 
-help:							## Displays available make targets
-	@egrep -h '\s##\s' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "$(BLUE)  %-30s$(RESET) %s\n", $$1,
+clean:									## Wipes all rust and golang build artifacts
+	$(call start_step_message,"Cleaning Build Artifacts")
+	cd $(RUST_DIR) && cargo clean
+	rm -rf $(TUI_BUILD_OUTPUT_DIR)
+	$(call successful)
+
+help:									## Displays available make targets
+	@egrep -h '\s##\s' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "$(BLUE)  %-30s$(RESET) %s\n", $$1, $$2}'
