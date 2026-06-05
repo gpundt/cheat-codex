@@ -1,0 +1,5 @@
+# Rust
+./core/target
+
+# Golang
+./tui/bin
