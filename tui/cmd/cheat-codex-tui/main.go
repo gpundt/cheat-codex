@@ -5,7 +5,7 @@ import (
 	Menu "cheat-codex/internal/ui/menu"
 
 	tea "github.com/charmbracelet/bubbletea"
-	
+
 	"github.com/rs/zerolog/log"
 )
 
@@ -17,6 +17,6 @@ func main() {
 		tea.WithAltScreen(),
 	)
 	if _, err := program.Run(); err != nil {
-		log.Fatal(err).Str("func", "InitializeTUI").Msg("")
+		log.Fatal().Err(err).Str("func", "InitializeTUI").Msg("")
 	}
 }

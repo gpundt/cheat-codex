@@ -1,18 +1,21 @@
 package tui_menu
 
 import (
-	Config "cheat-codex/internal/config"
+	IPC "cheat-codex/internal/ipc"
 	Styles "cheat-codex/internal/ui/styles"
+	"fmt"
+	"strconv"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type MenuModel struct {
-	ParentModel  *tea.MenuModel
-	Choices		[]string
-	Cursor int
-	Width int
-	Height int
+	ParentModel *tea.Model
+	Choices     []IPC.Process
+	Cursor      int
+	Width       int
+	Height      int
 }
 
 func (model MenuModel) Init() tea.Cmd {
@@ -20,37 +23,37 @@ func (model MenuModel) Init() tea.Cmd {
 }
 
 func InitializeMenuModel() MenuModel {
-	return MenuModel {
+	return MenuModel{
 		ParentModel: nil,
-		Choices: Config.GetActiveEmulators(),
-		cursor: 0,
+		Choices:     IPC.GetActiveEmulators(),
+		Cursor:      0,
 	}
 }
 
 func (model MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	selectedModel := "Menu"
-	swtich msg := msg.(type) {
+	switch msg := msg.(type) {
+
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c", "1":
+		case "ctrl+c", "q", "esc":
 			return model, tea.Quit
-		
+
 		case "up":
 			if model.Cursor > 0 {
 				model.Cursor--
 			}
 		case "down":
-			if model.Cursor < len(model.Choices) - 1 {
-				model.Cursor ++
+			if model.Cursor < len(model.Choices)-1 {
+				model.Cursor++
 			}
 		case "enter", "space", "right":
-			selectedModel = model.Choices[model.Cursor]
+			return model, nil
 		}
-		
+
 	case tea.WindowSizeMsg:
 		model.Width = msg.Width
 		model.Height = msg.Height
-		return model, nil 
+		return model, nil
 	}
 
 	var nextModel tea.Model
@@ -62,15 +65,58 @@ func (model MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (model MenuModel) View() string {
 	title := Styles.Title.Render("Cheat Codex - ROM Emulator Hacking TUI")
 
-	footer := Style.RenderFooter([][]string{
+	footer := Styles.RenderFooter([][]string{
 		{"↑↓", "navigate"},
 		{"enter/space/→", "open"},
-		{"ctrl+c/q", "quit"},
+		{"ctrl+c/q/esc", "quit"},
 	})
+
+	container := Styles.ContainerHeader.Render(
+		"Select an emulator process to attach to:\n",
+	)
+
+	if len(model.Choices) == 0 {
+		container += "No emulator processes detected..."
+	} else {
+		for i, choice := range model.Choices {
+			cursor := "  "
+			name := choice.Name
+			pid := strconv.Itoa(choice.PID)
+			if model.Cursor == i {
+				cursor = Styles.Cursor.Render("> ")
+				name = Styles.SelectedItem.Render(
+					fmt.Sprintf("%-18s", name),
+				)
+				pid = Styles.SelectedItem.Render(
+					fmt.Sprintf("PID:%s", pid),
+				)
+			} else {
+				name = Styles.UnselectedItem.Render(
+					fmt.Sprintf("%-20s", name),
+				)
+				pid = Styles.UnselectedItem.Render(
+					fmt.Sprintf("PID:%s", pid),
+				)
+			}
+
+			row := lipgloss.JoinHorizontal(
+				lipgloss.Left,
+				cursor,
+				name,
+				pid,
+			)
+			container = lipgloss.JoinVertical(
+				lipgloss.Left,
+				container,
+				row,
+			)
+		}
+	}
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		title,
+		Styles.Container.Render(container),
 		footer,
 	)
 }

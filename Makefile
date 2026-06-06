@@ -39,11 +39,13 @@ build_memory_bins:						## Builds memory operation binary
 	@cd $(RUST_DIR) && cargo build --release --target x86_64-unknown-linux-gnu
 	$(call successful)
 
-build_tui: #build_memory_bins			## Builds TUI binary
+build_tui: build_memory_bins			## Builds TUI binary
 	$(call start_step_message,"Building TUI '$(TUI_DIR)'")
 	@cd $(TUI_DIR) && \
 	go mod tidy && go mod vendor && \
-	go build -mod=vendor -ldflags="-s -w" -o $(TUI_BUILD_OUTPUT_DIR) ./cmd/cheat-codex-tui
+	GOOS=linux GOARCH=arm64 go build -mod=vendor -ldflags="-s -w" -o "${TUI_BUILD_OUTPUT_FILE}_linux-arm64" ./cmd/cheat-codex-tui && \
+	GOOS=linux GOARCH=amd64 go build -mod=vendor -ldflags="-s -w" -o "${TUI_BUILD_OUTPUT_FILE}_linux-amd64" ./cmd/cheat-codex-tui && \
+	GOOS=windows GOARCH=amd64 go build -mod=vendor -ldflags="-s -w" -o "${TUI_BUILD_OUTPUT_FILE}_win-amd64.exe" ./cmd/cheat-codex-tui
 	$(call successful)
 
 clean:									## Wipes all rust and golang build artifacts
