@@ -1,9 +1,7 @@
 package config
 
 import (
-	"fmt"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -11,12 +9,10 @@ import (
 )
 
 // Helper function to intialize log string Format
-// Sets up file logger and stdout logger
-func InitializeLogger(component string, filepathsStruct Config.Filepaths) {
+// Sets up stdout logger
+func InitializeLogger() {
 	zerolog.TimeFieldFormat = time.RFC3339
 	zerolog.SetGlobalLevel(zerolog.DebugLevel)
-
-	date := time.Now().Format("2006-01-02")
 
 	consoleWriter := zerolog.ConsoleWriter{
 		Out:        os.Stdout,

@@ -42,7 +42,7 @@ build_memory_bins:						## Builds memory operation binary
 build_tui: #build_memory_bins			## Builds TUI binary
 	$(call start_step_message,"Building TUI '$(TUI_DIR)'")
 	@cd $(TUI_DIR) && \
-# 	go mod tidy && go mod vendor && \
+	go mod tidy && go mod vendor && \
 	go build -mod=vendor -ldflags="-s -w" -o $(TUI_BUILD_OUTPUT_DIR) ./cmd/cheat-codex-tui
 	$(call successful)
 

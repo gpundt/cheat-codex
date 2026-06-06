@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	InitializeLogger()
+	Config.InitializeLogger()
 }
