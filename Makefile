@@ -30,9 +30,7 @@ endef
 all: prep_build_dirs build_tui
 
 prep_build_dirs:
-	$(call start_step_message,"Creating Build Output Dirs")
 	@mkdir -p $(TUI_BUILD_OUTPUT_DIR)
-	$(call successful)
 
 build_memory_bins:						## Builds memory operation binary
 	$(call start_step_message,"Building Core Memory Operation Binaries '$(RUST_DIR)'")
@@ -41,11 +39,11 @@ build_memory_bins:						## Builds memory operation binary
 	@cd $(RUST_DIR) && cargo build --release --target x86_64-unknown-linux-gnu
 	$(call successful)
 
-build_tui: build_memory_bins			## Builds TUI binary
+build_tui: #build_memory_bins			## Builds TUI binary
 	$(call start_step_message,"Building TUI '$(TUI_DIR)'")
 	@cd $(TUI_DIR) && \
-	go mod tidy && go mod vendor && \
-	go build -mod=vendor -ldflags="-s -w" -o $(TUI_BUILD_OUTPUT_FILE) cmd 
+# 	go mod tidy && go mod vendor && \
+	go build -mod=vendor -ldflags="-s -w" -o $(TUI_BUILD_OUTPUT_DIR) ./cmd/cheat-codex-tui
 	$(call successful)
 
 clean:									## Wipes all rust and golang build artifacts
