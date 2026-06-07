@@ -38,13 +38,14 @@ func (h HexOffset) String() string {
 }
 
 type OffsetEntry struct {
-	Label    string    `yaml:"label"`
-	Offset   HexOffset `yaml:"offset"`
-	Type     string    `yaml:"type"`
-	Minimum  int       `yaml:"min"`
-	Maximum  int       `yaml:"max"`
-	ReadOnly bool      `yaml:"readonly"`
-	Notes    string    `yaml:"notes"`
+	Label        string    `yaml:"label"`
+	Offset       HexOffset `yaml:"offset"`
+	Type         string    `yaml:"type"`
+	Minimum      int       `yaml:"min"`
+	Maximum      int       `yaml:"max"`
+	CurrentValue int
+	ReadOnly     bool   `yaml:"readonly"`
+	Notes        string `yaml:"notes"`
 }
 
 type Group struct {

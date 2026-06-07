@@ -2,6 +2,7 @@ package tui_process
 
 import (
 	IPC "cheat-codex/internal/ipc"
+	MemoryMap "cheat-codex/internal/memory_map"
 	Styles "cheat-codex/internal/ui/styles"
 	"fmt"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 type EmulatorModel struct {
 	ParentModel *tea.Model
 	Emulator    IPC.EmulatorProcess
+	Map         MemoryMap.MemoryMap
 	Cursor      int
 	Width       int
 	Height      int
@@ -28,9 +30,11 @@ func InitializeEmulatorModel(
 	width,
 	height int,
 ) EmulatorModel {
+	mm, err := MemoryMap.InitializeMemoryMap()
 	return EmulatorModel{
 		ParentModel: &parentModel,
 		Emulator:    emulator,
+		Map:         MemoryMap.InitializeMemoryMap(),
 		Cursor:      0,
 		Width:       width,
 		Height:      height,
