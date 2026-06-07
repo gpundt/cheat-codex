@@ -6,8 +6,8 @@ RUST_BUILD_OUTPUT_FILE := $(RUST_BUILD_OUTPUT_DIR)cheat-codex-core
 RUST_DST_FILE := cheat-codex-core
 
 TUI_DIR := $(CURRENT_DIR)tui/
-TUI_BUILD_OUTPUT_DIR := $(TUI_DIR)build/
-TUI_BUILD_OUTPUT_FILE := $(TUI_BUILD_OUTPUT_DIR)cheat-codex
+OUTPUT_DIR := $(CURRENT_DIR)build/
+TUI_BUILD_OUTPUT_FILE := $(OUTPUT_DIR)cheat-codex
 TUI_DST_FILE := /usr/bin/cheat-codex
 
 ## Colors ##
@@ -27,10 +27,10 @@ define successful
 	@echo -e "\t - $(GREEN)*Successful*$(RESET)\n"
 endef
 
-all: prep_build_dirs build_tui
+all: prep_build_dirs build_tui move_files
 
 prep_build_dirs:
-	@mkdir -p $(TUI_BUILD_OUTPUT_DIR)
+	@mkdir -p $(OUTPUT_DIR)
 
 build_memory_bins:						## Builds memory operation binary
 	$(call start_step_message,"Building Core Memory Operation Binaries '$(RUST_DIR)'")
@@ -46,6 +46,12 @@ build_tui: build_memory_bins			## Builds TUI binary
 	GOOS=linux GOARCH=arm64 go build -mod=vendor -ldflags="-s -w" -o "${TUI_BUILD_OUTPUT_FILE}_linux-arm64" ./cmd/cheat-codex-tui && \
 	GOOS=linux GOARCH=amd64 go build -mod=vendor -ldflags="-s -w" -o "${TUI_BUILD_OUTPUT_FILE}_linux-amd64" ./cmd/cheat-codex-tui && \
 	GOOS=windows GOARCH=amd64 go build -mod=vendor -ldflags="-s -w" -o "${TUI_BUILD_OUTPUT_FILE}_win-amd64.exe" ./cmd/cheat-codex-tui
+	$(call successful)
+
+move_files: 
+	$(call start_step_message,"Moving Files")
+	@cp $(RUST_DIR)/target/x86_64-pc-windows-gnu/release/cheat-codex-core.exe $(OUTPUT_DIR) && \
+	cp $(RUST_DIR)/target/x86_64-unknown-linux-gnu/release/cheat-codex-core $(OUTPUT_DIR)
 	$(call successful)
 
 clean:									## Wipes all rust and golang build artifacts

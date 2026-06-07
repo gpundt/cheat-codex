@@ -2,4 +2,5 @@
 /core/target
 
 # Golang
-/tui/build
+build
+

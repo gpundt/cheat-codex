@@ -2,6 +2,7 @@ package tui_menu
 
 import (
 	IPC "cheat-codex/internal/ipc"
+	Process "cheat-codex/internal/ui/process"
 	Styles "cheat-codex/internal/ui/styles"
 	"fmt"
 	"strconv"
@@ -47,7 +48,17 @@ func (model MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				model.Cursor++
 			}
 		case "enter", "space", "right":
-			return model, nil
+			emulatorProcess := IPC.EmulatorProcess{
+				Name:        model.Choices[model.Cursor].Name,
+				PID:         model.Choices[model.Cursor].PID,
+				BaseAddress: IPC.GetBaseAddress(model.Choices[model.Cursor].PID),
+			}
+			return Process.InitializeEmulatorModel(
+				model,
+				emulatorProcess,
+				model.Width,
+				model.Height,
+			), nil
 		}
 
 	case tea.WindowSizeMsg:
@@ -56,10 +67,7 @@ func (model MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return model, nil
 	}
 
-	var nextModel tea.Model
-
-	nextModel = model
-	return nextModel, nil
+	return model, nil
 }
 
 func (model MenuModel) View() string {
@@ -76,7 +84,7 @@ func (model MenuModel) View() string {
 	)
 
 	if len(model.Choices) == 0 {
-		container += "No emulator processes detected..."
+		container += "\nNo emulator processes detected..."
 	} else {
 		for i, choice := range model.Choices {
 			cursor := "  "

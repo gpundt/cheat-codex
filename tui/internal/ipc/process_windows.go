@@ -43,7 +43,5 @@ func listProcesses() ([]Process, error) {
 
 	log.Info().Str("func", "listProcesses").
 		Msg(fmt.Sprintf("Found %d Windows processes", len(processes)))
-
-	fmt.Printf("%v", processes)
 	return processes, nil
 }

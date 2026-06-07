@@ -2,10 +2,17 @@ package ipc
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/rs/zerolog/log"
 )
+
+type EmulatorProcess struct {
+	Name        string
+	PID         int
+	BaseAddress string
+}
 
 type Process struct {
 	PID  int
@@ -35,9 +42,9 @@ func GetActiveEmulators() []Process {
 	}
 
 	log.Info().Str("func", "GetActiveEmulators").
+		Str("matching_processes", strconv.Itoa(len(ActiveEmulators))).
 		Msg(fmt.Sprintf(
-			"Found %d processes with matching substrings",
-			len(ActiveEmulators),
+			"%v", ActiveEmulators,
 		))
 	return ActiveEmulators
 }

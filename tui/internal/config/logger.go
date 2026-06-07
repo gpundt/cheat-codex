@@ -25,5 +25,5 @@ func InitializeLogger() {
 		Timestamp().
 		Logger()
 
-	log.Info().Msg("Logger initialized")
+	log.Debug().Msg("Logger initialized")
 }
