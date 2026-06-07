@@ -57,5 +57,5 @@ func GetBaseAddress(pid int) string {
 
 	hexStr := strconv.FormatInt(num, 16)
 
-	return hexStr
+	return fmt.Sprintf("0x%s", hexStr)
 }

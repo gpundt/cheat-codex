@@ -1,0 +1,106 @@
+schema_version: 1
+
+# Metadata - Descibes the target
+meta:
+  name: "Doom"
+  version:
+  platform: "GBA"
+  emulator: "mGBA"
+  process: "mgba"
+  region: "USA"
+
+# Groups - organize offsets into logical sections
+groups:
+
+  - name: "Player"
+    description: "Core player stats"
+    offsets:
+      - label: "Health"
+        offset: 0x0
+        type: uint16
+        min: 0
+        max: 200
+
+      - label: "Armor"
+        offset: 0x0
+        type: uint16
+        min: 0
+        max: 200
+
+      - label: "Level"
+        offset: 0x0
+        type: uint8
+        readonly: true
+        notes: "Current map/level number. Editing may cause instability"
+
+  - name: "Ammunition"
+    description: "Current ammo counts per weapon type"
+    offsets:
+      - label: "Bullets"
+        offset: 0x0
+        type: uint16
+        min: 0
+        max: 999
+
+      - label: "Shells"
+        offset: 0x0
+        type: uint16
+        min: 0
+        max: 999
+
+      - label: "Rockets"
+        offset: 0x0
+        type: uint16
+        min: 0
+        max: 999
+
+      - label: "Plasma Cells"
+        offset: 0x0
+        type: uint16
+        min: 0
+        max: 999
+
+  - name: "Weapons"
+    description: "Weapon unlock flags — 0=locked, 1=unlocked"
+    offsets:
+
+      - label: "Pistol"
+        offset: 0x0
+        type: bool
+
+      - label: "Shotgun"
+        offset: 0x0
+        type: bool
+
+      - label: "Chaingun"
+        offset: 0x0
+        type: bool
+
+      - label: "Rocket Launcher"
+        offset: 0x0
+        type: bool
+
+      - label: "Plasma Rifle"
+        offset: 0x0
+        type: bool
+
+      - label: "BFG9000"
+        offset: 0x0
+        type: bool
+
+  - name: "Cheats / Flags"
+    description: "Active cheat and game state flags"
+    offsets:
+
+      - label: "God Mode"
+        offset: 0x0
+        type: bool
+
+      - label: "No Clip"
+        offset: 0x0
+        type: bool
+
+      - label: "All Keys"
+        offset: 0x0
+        type: uint8
+        notes: "Bitmask: bit0=blue, bit1=yellow, bit2=red"

@@ -79,7 +79,7 @@ func (model EmulatorModel) View() string {
 	})
 
 	container := Styles.ContainerHeader.Render(fmt.Sprintf(
-		"Process: %-20sPID: %-20sBase Address: 0x%-20s",
+		"Process: %-20sPID: %-20sBase Address: %-20s",
 		model.Emulator.Name,
 		strconv.Itoa(model.Emulator.PID),
 		model.Emulator.BaseAddress,
