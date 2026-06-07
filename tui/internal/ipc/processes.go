@@ -9,9 +9,10 @@ import (
 )
 
 type EmulatorProcess struct {
-	Name        string
-	PID         int
-	BaseAddress string
+	Name                string
+	PID                 int
+	EmulatorBaseAddress string
+	RegionBaseAddress   string
 }
 
 type Process struct {

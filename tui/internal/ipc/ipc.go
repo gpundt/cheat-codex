@@ -41,8 +41,8 @@ func callBinary(commandArguments string) string {
 	return string(out)
 }
 
-func GetBaseAddress(pid int) string {
-	log.Info().Str("pid", strconv.Itoa(pid)).Msg("Getting base address")
+func GetEmulatorBaseAddress(pid int) string {
+	log.Info().Str("pid", strconv.Itoa(pid)).Msg("Getting Emulator base address")
 
 	commandArgs := fmt.Sprintf(
 		"--action get-base-address --pid %d", pid,
@@ -51,7 +51,7 @@ func GetBaseAddress(pid int) string {
 
 	num, err := strconv.ParseInt(result, 10, 64)
 	if err != nil {
-		log.Err(err).Str("func", "GetBaseAddress").Msg("")
+		log.Err(err).Str("func", "GetEmulatorBaseAddress").Msg("")
 		return ""
 	}
 

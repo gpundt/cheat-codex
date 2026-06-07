@@ -79,10 +79,11 @@ func (model EmulatorModel) View() string {
 	})
 
 	container := Styles.ContainerHeader.Render(fmt.Sprintf(
-		"Process: %-20sPID: %-20sBase Address: %-20s",
+		"Process: %-15sPID: %-8sEmulator Base Address: %-15sMemory Region Base Address: %-15s",
 		model.Emulator.Name,
 		strconv.Itoa(model.Emulator.PID),
-		model.Emulator.BaseAddress,
+		model.Emulator.EmulatorBaseAddress,
+		model.Emulator.RegionBaseAddress,
 	))
 
 	return lipgloss.JoinVertical(

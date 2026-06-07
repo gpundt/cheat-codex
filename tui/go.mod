@@ -6,6 +6,8 @@ require (
 	github.com/charmbracelet/bubbletea v1.3.10
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/rs/zerolog v1.35.1
+	github.com/stretchr/testify v1.11.1
+	go.yaml.in/yaml/v3 v3.0.4
 )
 
 require (
@@ -27,4 +29,5 @@ require (
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	golang.org/x/sys v0.36.0 // indirect
 	golang.org/x/text v0.3.8 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

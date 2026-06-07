@@ -1,10 +1,12 @@
 use std::fs;
-use std::num::ParseIntError;
 
 #[derive(Debug)]
 pub enum MemoryError {
     IoError(std::io::Error),
     ParseError(String),
+    RegionNotFound,
+    ReadError(String),
+    WriteError(String),
 }
 
 impl From<std::io::Error> for MemoryError {
@@ -13,28 +15,69 @@ impl From<std::io::Error> for MemoryError {
     }
 }
 
-pub fn get_base_address(pid: u32) -> Result<usize, MemoryError> {
-    let maps_path = format!("/proc/{}/maps", pid);
-    let contents = fs::read_to_string(&maps_path)?;
+const EWRAM_SIZE: usize = 0x40000; // 256KB - GBA external RAM
 
-    // Each line of /proc/{}/maps looks like:
-    // 7f4a3b000000-7f4a3b001000 r--p 00000000 fd:01 123456  /path/to/binary
-    // We want the start address of the very first line
-    let first_line = contents
-        .lines()
-        .next()
-        .ok_or_else(|| MemoryError::ParseError("maps file is empty".to_string()))?;
+pub fn find_gba_ram_base(pid: u32) -> Result<usize, MemoryError> {
+    let contents = fs::read_to_string(format!("/proc/{}/maps", pid))?;
 
-    let address_range = first_line
-        .split_whitespace()
-        .next()
-        .ok_or_else(|| MemoryError::ParseError("could not parse first field".to_string()))?;
+    for line in contents.lines() {
+        let mut fields = line.split_whitespace();
 
-    let start_address = address_range
-        .split('-')
-        .next()
-        .ok_or_else(|| MemoryError::ParseError("could not parse address range".to_string()))?;
+        let range = fields.next()
+            .ok_or_else(|| MemoryError::ParseError("bad line".to_string()))?;
 
-    usize::from_str_radix(start_address, 16)
-        .map_err(|e| MemoryError::ParseError(format!("could not parse hex address: {}", e)))
+        let perms = fields.next()
+            .ok_or_else(|| MemoryError::ParseError("no perms".to_string()))?;
+
+        let mut range_parts = range.split('-');
+        let start = parse_hex(range_parts.next().unwrap_or(""))?;
+        let end   = parse_hex(range_parts.next().unwrap_or(""))?;
+        let size  = end - start;
+
+        // GBA EWRAM is exactly 256KB, readable and writable, anonymous (no file backing)
+        // Anonymous regions have no filename at the end of the line
+        let is_anonymous = line.split_whitespace().count() == 5;
+        let is_rw = perms.starts_with("rw");
+
+        if size == EWRAM_SIZE && is_rw && is_anonymous {
+            return Ok(start);
+        }
+    }
+
+    Err(MemoryError::RegionNotFound)
+}
+
+pub fn read_u32(pid: u32, address: usize) -> Result<u32, MemoryError> {
+    use std::io::{Read, Seek, SeekFrom};
+
+    let mut file = std::fs::OpenOptions::new()
+        .read(true)
+        .open(format!("/proc/{}/mem", pid))?;
+
+    file.seek(SeekFrom::Start(address as u64))?;
+
+    let mut buf = [0u8; 4];
+    file.read_exact(&mut buf)
+        .map_err(|e| MemoryError::ReadError(e.to_string()))?;
+
+    Ok(u32::from_le_bytes(buf))
+}
+
+pub fn write_u32(pid: u32, address: usize, value: u32) -> Result<(), MemoryError> {
+    use std::io::{Seek, SeekFrom, Write};
+
+    let mut file = std::fs::OpenOptions::new()
+        .write(true)
+        .open(format!("/proc/{}/mem", pid))?;
+
+    file.seek(SeekFrom::Start(address as u64))?;
+    file.write_all(&value.to_le_bytes())
+        .map_err(|e| MemoryError::WriteError(e.to_string()))?;
+
+    Ok(())
+}
+
+fn parse_hex(s: &str) -> Result<usize, MemoryError> {
+    usize::from_str_radix(s, 16)
+        .map_err(|e| MemoryError::ParseError(e.to_string()))
 }

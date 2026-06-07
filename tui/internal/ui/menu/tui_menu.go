@@ -49,9 +49,10 @@ func (model MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "enter", "space", "right":
 			emulatorProcess := IPC.EmulatorProcess{
-				Name:        model.Choices[model.Cursor].Name,
-				PID:         model.Choices[model.Cursor].PID,
-				BaseAddress: IPC.GetBaseAddress(model.Choices[model.Cursor].PID),
+				Name:                model.Choices[model.Cursor].Name,
+				PID:                 model.Choices[model.Cursor].PID,
+				EmulatorBaseAddress: IPC.GetEmulatorBaseAddress(model.Choices[model.Cursor].PID),
+				RegionBaseAddress:   "0x00",
 			}
 			return Process.InitializeEmulatorModel(
 				model,
