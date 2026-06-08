@@ -50,7 +50,7 @@ func InitializeGameStruct(mapFilepath string) Game {
 func GetEmulatorGames(emulatorName string) []Game {
 	games := []Game{}
 
-	mapsDir := "../maps"
+	mapsDir := "/opt/cheat-codex/maps"
 
 	// Read the directory contents
 	entries, err := os.ReadDir(mapsDir)

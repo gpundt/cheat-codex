@@ -59,13 +59,12 @@ func (model GamesListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return model, nil
 		case "enter", "space", "right":
-			return Game.GameModel{
+			return Game.InitializeGameModel(
 				model,
 				model.Choices[model.Cursor],
-				0,
 				model.Width,
 				model.Height,
-			}, nil
+			), nil
 		}
 
 	case tea.WindowSizeMsg:

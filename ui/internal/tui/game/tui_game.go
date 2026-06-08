@@ -3,16 +3,22 @@ package tui_game
 import (
 	Styles "cheat-codex/internal/tui/styles"
 	Games "cheat-codex/internal/games"
+	Memory "cheat-codex/internal/memory_map"
 	"strconv"
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/rs/zerolog/log"
 )
 
 type GameModel struct {
 	ParentModel tea.Model
 	SelectedGame Games.Game
+	AllOffsets []Memory.OffsetEntry
+	Editing bool
+	EditInput textinput.Model
 	Cursor int
 	Width int
 	Height int
@@ -28,9 +34,22 @@ func InitializeGameModel(
 	width,
 	height int,
 ) GameModel {
+	allOffsets := []Memory.OffsetEntry{}
+	for _, group := range selectedGame.Map.Groups {
+		for _, entry := range group.Offsets {
+			allOffsets = append(allOffsets, entry)
+		}
+	}
+
+	ti := textinput.New()
+	ti.CharLimit = 128
+
 	return GameModel{
 		ParentModel: parentModel,
 		SelectedGame: selectedGame,
+		AllOffsets: allOffsets,
+		Editing: false
+		EditInput: ti,
 		Cursor: 0,
 		Width: width,
 		Height: height,
@@ -48,6 +67,11 @@ func (model GameModel) GetTotalRows() int {
 }
 
 func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	// --- Edit Mode --- Intercept all keys for the text input
+	if model.Editing {
+		return model, nil
+	}
+	
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -66,7 +90,33 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return model, nil
 		case "enter", "space":
-			return model, nil
+			switch model.AllOffsets[model.Cursor + 1].Type {
+			case "bool":	
+				for groupNum, group := range model.SelectedGame.Map.Groups {
+					for entryNum, entry := range group.Offsets {
+						if entry.Offset == model.AllOffsets[model.Cursor + 1].Offset {
+							model.SelectedGame.Map.Groups[groupNum].Offsets[entryNum].CurrentValue ^= 1
+							
+							// Now you gotta send a write
+							return model, nil
+						}
+					}
+				}
+			case "uint16", "uint8":
+				// — enter edit mode ———————————————————
+				replacedKey := strings.ReplaceAll(row.ConfigName, "_", " ")
+				titledKey := cases.Title(language.English).String(replacedKey)
+				
+				model.EditInput.Prompt = fmt.Sprintf(
+					"%-42s:   ",
+					Style.SelectedItemStyle.Render(titledKey),
+				)
+				model.EditInput.SetValue(fmt.Sprintf("%v", row.Value))
+				model.EditInput.Focus()
+				model.Editing = true
+				return model, nil
+			}
+
 		}
 
 	case tea.WindowSizeMsg:
@@ -105,8 +155,8 @@ func (model GameModel) View() string {
 
 	var rowNum = 0
 	for _, group := range model.SelectedGame.Map.Groups {
-		groupName := Styles.Key.Render(group.Name)
-		groupDescription := Styles.KeyDescription.Render(group.Description)
+		groupName := Styles.GroupName.Render(group.Name)
+		groupDescription := Styles.GroupDescription.Render(group.Description)
 		header := lipgloss.JoinHorizontal(
 			lipgloss.Left,
 			groupName,
@@ -126,20 +176,25 @@ func (model GameModel) View() string {
 			if model.Cursor == rowNum {
 				cursor = Styles.Cursor.Render("> ")
 			}
-			label := Styles.Key.Render(offset.Label)
-			valueType := Styles.Key.Render(offset.Type)
-			currentValue := Styles.Key.Render(
-				strconv.Itoa(offset.CurrentValue),
+			label := Styles.OffsetEntryLabel.Render(
+				fmt.Sprintf("%-15s", offset.Label),
 			)
-			offset := Styles.Key.Render(offset.Offset.String())
-			
+			currentValue := Styles.OffsetEntryValue.Render(
+				fmt.Sprintf("%-10s", strconv.Itoa(offset.CurrentValue)),
+			)
+			offsetString := Styles.OffsetEntryMisc.Render(
+				fmt.Sprintf("%-6s", offset.Offset.String()),
+			)
+			valueType := Styles.OffsetEntryMisc.Render(
+				fmt.Sprintf("%-10s", offset.Type),
+			)
 			row := lipgloss.JoinHorizontal(
 				lipgloss.Left,
 				cursor,
 				label,
-				offset,
-				valueType,
 				currentValue,
+				offsetString,
+				valueType,
 			)
 
 			container = lipgloss.JoinVertical(

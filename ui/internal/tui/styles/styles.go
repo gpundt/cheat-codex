@@ -5,12 +5,14 @@ import "github.com/charmbracelet/lipgloss"
 var (
 	// --- Color Palette ---------------------------
 	colorPurple    = lipgloss.Color("99")
+	colorAqua      = lipgloss.Color("86")
 	colorDimPurple = lipgloss.Color("5")
 	colorGold      = lipgloss.Color("220")
 	colorDimGray   = lipgloss.Color("236")
 	colorWhite     = lipgloss.Color("255")
 	colorDimWhite  = lipgloss.Color("250")
 	colorGray      = lipgloss.Color("240")
+	colorDimmerGray   = lipgloss.Color("241")
 	colorMuted     = lipgloss.Color("244")
 
 	// ── Layout constants ─────────────────────────────────────────
@@ -68,18 +70,33 @@ var (
 	UnselectedItem = lipgloss.NewStyle().
 			Foreground(colorDimWhite).
 			PaddingLeft(2)
-	
-	Key = lipgloss.NewStyle().
+
+	// ── Memory Map Items ───────────────────────────────────────────────
+	GroupName = lipgloss.NewStyle().
 			Bold(true).
 			Foreground(colorPurple).
 			Background(colorDimGray).
 			Padding(0, 1)
 	
-	KeyDescription = lipgloss.NewStyle().
+	GroupDescription = lipgloss.NewStyle().
 			Foreground(colorMuted).
 			Background(colorDimGray).
 			Padding(0, 1)
-
+	
+	OffsetEntryLabel = lipgloss.NewStyle().
+			Bold(true).
+			Foreground(colorAqua).
+			PaddingRight(2).
+			PaddingLeft(2)
+	
+	OffsetEntryMisc = lipgloss.NewStyle().
+			Foreground(colorDimmerGray)
+	
+	OffsetEntryValue = lipgloss.NewStyle().
+			Foreground(colorWhite).
+			PaddingRight(2).
+			PaddingLeft(2)
+	
 	// ── Helpers ───────────────────────────────────────────────────
 	KeyStyle = lipgloss.NewStyle().
 			Bold(true).

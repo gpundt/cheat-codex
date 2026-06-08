@@ -65,27 +65,27 @@ groups:
     offsets:
 
       - label: "Pistol"
-        offset: 0x0
+        offset: 0x1
         type: bool
 
       - label: "Shotgun"
-        offset: 0x0
+        offset: 0x2
         type: bool
 
       - label: "Chaingun"
-        offset: 0x0
+        offset: 0x3
         type: bool
 
       - label: "Rocket Launcher"
-        offset: 0x0
+        offset: 0x4
         type: bool
 
       - label: "Plasma Rifle"
-        offset: 0x0
+        offset: 0x5
         type: bool
 
       - label: "BFG9000"
-        offset: 0x0
+        offset: 0x6
         type: bool
 
   - name: "Cheats / Flags"
@@ -93,14 +93,14 @@ groups:
     offsets:
 
       - label: "God Mode"
-        offset: 0x0
+        offset: 0x7
         type: bool
 
       - label: "No Clip"
-        offset: 0x0
+        offset: 0x8
         type: bool
 
       - label: "All Keys"
-        offset: 0x0
+        offset: 0x9
         type: uint8
         notes: "Bitmask: bit0=blue, bit1=yellow, bit2=red"
