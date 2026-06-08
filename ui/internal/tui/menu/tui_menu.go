@@ -1,7 +1,7 @@
 package tui_menu
 
 import (
-	Games "cheat-codex/internal/tui/games"
+	Games "cheat-codex/internal/tui/games_list"
 	IPC "cheat-codex/internal/ipc"
 	Styles "cheat-codex/internal/tui/styles"
 	"fmt"
@@ -48,7 +48,7 @@ func (model MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				model.Cursor++
 			}
 		case "enter", "space", "right":
-			return Games.InitializeGamesModel(
+			return Games.InitializeGamesListModel(
 				model,
 				model.Choices[model.Cursor].EmulatorName,
 				model.Width,

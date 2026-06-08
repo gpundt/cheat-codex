@@ -21,13 +21,13 @@ define start_step_message
 	@echo -e "\n$(CYAN)[*] $(1) [*]$(RESET)"
 endef
 define error_message
-	@echo "$(RED)ERROR$(RESET): $(1)"
+	@echo -e "$(RED)ERROR$(RESET): $(1)"
 endef
 define successful
 	@echo -e "\t - $(GREEN)*Successful*$(RESET)\n"
 endef
 
-all: prep_build_dirs build_tui move_files
+all: prep_build_dirs build_tui #move_files
 
 prep_build_dirs:
 	@mkdir -p $(OUTPUT_DIR)
@@ -39,7 +39,7 @@ build_memory_bins:						## Builds memory operation binary
 	cargo build --release --target x86_64-unknown-linux-gnu
 	$(call successful)
 
-build_tui: #build_memory_bins			## Builds TUI binary
+build_tui: build_memory_bins			## Builds TUI binary
 	$(call start_step_message,"Building TUI '$(UI_DIR)'")
 	@cd $(UI_DIR) && \
 	go mod tidy && go mod vendor && \
@@ -50,8 +50,8 @@ build_tui: #build_memory_bins			## Builds TUI binary
 
 move_files: 
 	$(call start_step_message,"Moving Files")
-	@cp $(RUST_DIR)/target/x86_64-pc-windows-gnu/release/cheat-codex-core.exe $(OUTPUT_DIR) && \
-	cp $(RUST_DIR)/target/x86_64-unknown-linux-gnu/release/cheat-codex-core $(OUTPUT_DIR)
+	@cp $(RUST_DIR)target/x86_64-pc-windows-gnu/release/cheat-codex-core.exe $(OUTPUT_DIR)
+	@cp $(RUST_DIR)target/x86_64-unknown-linux-gnu/release/cheat-codex-core $(OUTPUT_DIR)
 	$(call successful)
 
 clean:									## Wipes all rust and golang build artifacts

@@ -1,4 +1,4 @@
-package tui_games
+package tui_games_list
 
 import (
 	Styles "cheat-codex/internal/tui/styles"
@@ -10,7 +10,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type GamesModel struct {
+type GamesListModel struct {
 	ParentModel tea.Model
 	Emulator string
 	Choices [] Games.Game
@@ -19,17 +19,17 @@ type GamesModel struct {
 	Height int
 }
 
-func (model GamesModel) Init() tea.Cmd {
+func (model GamesListModel) Init() tea.Cmd {
 	return nil
 }
 
-func InitializeGamesModel(
+func InitializeGamesListModel(
 	parentModel tea.Model,
 	emulator string,
 	width,
 	height int,
-	) GamesModel {
-	return GamesModel{
+	) GamesListModel {
+	return GamesListModel{
 		ParentModel: parentModel,
 		Emulator: emulator,
 		Choices: Games.GetEmulatorGames(emulator),
@@ -39,7 +39,7 @@ func InitializeGamesModel(
 	}
 }
 
-func (model GamesModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (model GamesListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -70,7 +70,7 @@ func (model GamesModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return model, nil
 }
 
-func (model GamesModel) View() string {
+func (model GamesListModel) View() string {
 	title := Styles.Title.Render(fmt.Sprintf(
 		"Cheat Codex - %s Memory Modification",
 		model.Emulator,

@@ -11,6 +11,7 @@ import (
 
 func main() {
 	Config.InitializeLogger()
+	Config.InitializeFilepaths()
 
 	program := tea.NewProgram(
 		Menu.InitializeMenuModel(),

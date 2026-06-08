@@ -11,13 +11,13 @@ type Filepaths struct {
 	MapsDirectory     string
 }
 
-func InitializeFilepaths() Filepaths {
-	CodexCoreFilepath := Filepaths{
+func InitializeFilepaths() {
+	CodexFilepaths = Filepaths{
 		CheatCodexEtc: "/etc/cheat-codex/",
 		CheatCodexOpt: "/opt/cheat-codex/",
 		CheatCodexBin: "/opt/cheat-codex/bin/",
 		CheatCodexSrc: "/opt/cheat-codex/src/",
-		CoreBinary:    "/opt/cheat-codex/bin/" + CodexCoreFilepath
-		MapsDirectory: "/opt/cheat-codex/maps/"
+		CoreBinary:    "/opt/cheat-codex/bin/" + CodexCoreFilepath,
+		MapsDirectory: "/opt/cheat-codex/maps/",
 	}
 }
