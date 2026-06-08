@@ -3,6 +3,7 @@ package tui_games_list
 import (
 	Styles "cheat-codex/internal/tui/styles"
 	Games "cheat-codex/internal/games"
+	Game "cheat-codex/internal/tui/game"
 	"fmt"
 	"strconv"
 
@@ -13,7 +14,7 @@ import (
 type GamesListModel struct {
 	ParentModel tea.Model
 	Emulator string
-	Choices [] Games.Game
+	Choices []Games.Game
 	Cursor int
 	Width int
 	Height int
@@ -58,7 +59,13 @@ func (model GamesListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return model, nil
 		case "enter", "space", "right":
-			return model, nil
+			return Game.GameModel{
+				model,
+				model.Choices[model.Cursor],
+				0,
+				model.Width,
+				model.Height,
+			}, nil
 		}
 
 	case tea.WindowSizeMsg:

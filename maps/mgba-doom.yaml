@@ -3,7 +3,7 @@ schema_version: 1
 # Metadata - Descibes the target
 meta:
   name: "Doom"
-  version:
+  version: 5
   platform: "GBA"
   emulator: "mGBA"
   process: "mgba"

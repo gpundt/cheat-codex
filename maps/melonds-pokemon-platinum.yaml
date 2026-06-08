@@ -3,7 +3,7 @@ schema_version: 1
 # Metadata - Descibes the target
 meta:
   name: "Pokemon Platinum"
-  version:
+  version: 1
   platform: "NDS"
   emulator: "melonDS"
   process: "melonds"

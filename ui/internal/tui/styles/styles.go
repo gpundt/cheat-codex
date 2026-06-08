@@ -68,6 +68,17 @@ var (
 	UnselectedItem = lipgloss.NewStyle().
 			Foreground(colorDimWhite).
 			PaddingLeft(2)
+	
+	Key = lipgloss.NewStyle().
+			Bold(true).
+			Foreground(colorPurple).
+			Background(colorDimGray).
+			Padding(0, 1)
+	
+	KeyDescription = lipgloss.NewStyle().
+			Foreground(colorMuted).
+			Background(colorDimGray).
+			Padding(0, 1)
 
 	// ── Helpers ───────────────────────────────────────────────────
 	KeyStyle = lipgloss.NewStyle().
