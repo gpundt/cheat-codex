@@ -100,10 +100,10 @@ func (mm MemoryMap) UpdateOffsetEntryByLabel(
 	label string,
 	newEntry OffsetEntry,
 ) error {
-	for _, group := range mm.Groups {
-		for _, entry := range group.Offsets {
+	for groupIndex, group := range mm.Groups {
+		for entryIndex, entry := range group.Offsets {
 			if entry.Label == label {
-				entry = newEntry
+				mm.Groups[groupIndex].Offsets[entryIndex] = newEntry
 				return nil
 			}
 		}
@@ -112,14 +112,15 @@ func (mm MemoryMap) UpdateOffsetEntryByLabel(
 	return fmt.Errorf("No offset entry with label '%s' found...", label)
 }
 
+// Helper function to swap
 func (mm MemoryMap) UpdateOffsetEntryByOffset(
 	offset string,
 	newEntry OffsetEntry,
 ) error {
-	for groupNum, group := range mm.Groups {
-		for entryNum, entry := range group.Offsets {
+	for groupIndex, group := range mm.Groups {
+		for entryIndex, entry := range group.Offsets {
 			if entry.Offset.String() == offset {
-				mm.Groups[groupNum].Offsets[entryNum] = newEntry
+				mm.Groups[groupIndex].Offsets[entryIndex] = newEntry
 				return nil
 			}
 		}
