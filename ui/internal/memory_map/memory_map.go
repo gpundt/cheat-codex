@@ -57,3 +57,73 @@ type MemoryMap struct {
 	Groups        []Group `yaml:"groups"`
 }
 
+// Helper function to get individual group with a matching name
+func (mm MemoryMap) GetGroup(name string) (*Group, error) {
+	for _, group := range mm.Groups {
+		if group.Name == name {
+			return &group, nil
+		}
+	}
+
+	return nil, fmt.Errorf("No group with name '%s' found...", name)
+}
+
+// Helper function to get an individual OffsetEntry with a matching label
+func (mm MemoryMap) GetOffsetEntry(
+	label string,
+) (*OffsetEntry, error) {
+	for _, group := range mm.Groups {
+		for _, entry := range group.Offsets {
+			if entry.Label == label {
+				return &entry, nil
+			}
+		}
+	}
+
+	return nil, fmt.Errorf("No offset entry with label '%s' found...", label)
+}
+
+// Helper function to get a list of all OffsetEntries from the memory map
+func (mm MemoryMap) GetAllOffsetEntries() (int, []OffsetEntry) {
+	entries := []OffsetEntry{}
+	for _, group := range mm.Groups {
+		for _, entry := range group.Offsets {
+			entries = append(entries, entry)
+		}
+	}
+
+	return len(entries), entries
+}
+
+// Helper function to swap an individual OffsetEntry of a specific label with another OffsetEntry
+func (mm MemoryMap) UpdateOffsetEntryByLabel(
+	label string,
+	newEntry OffsetEntry,
+) error {
+	for _, group := range mm.Groups {
+		for _, entry := range group.Offsets {
+			if entry.Label == label {
+				entry = newEntry
+				return nil
+			}
+		}
+	}
+
+	return fmt.Errorf("No offset entry with label '%s' found...", label)
+}
+
+func (mm MemoryMap) UpdateOffsetEntryByOffset(
+	offset string,
+	newEntry OffsetEntry,
+) error {
+	for groupNum, group := range mm.Groups {
+		for entryNum, entry := range group.Offsets {
+			if entry.Offset.String() == offset {
+				mm.Groups[groupNum].Offsets[entryNum] = newEntry
+				return nil
+			}
+		}
+	}
+
+	return fmt.Errorf("No offset entry with offset '%s' found...", offset)
+}

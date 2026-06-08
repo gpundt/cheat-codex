@@ -27,7 +27,7 @@ define successful
 	@echo -e "\t - $(GREEN)*Successful*$(RESET)\n"
 endef
 
-all: prep_build_dirs build_tui #move_files
+all: prep_build_dirs build_tui move_files
 
 prep_build_dirs:
 	@mkdir -p $(OUTPUT_DIR)

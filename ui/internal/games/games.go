@@ -2,9 +2,10 @@ package games
 
 import (
 	"os"
-	"strings"
 	"path/filepath"
+	"strings"
 
+	Config "cheat-codex/internal/config"
 	MemoryMap "cheat-codex/internal/memory_map"
 
 	"github.com/rs/zerolog/log"
@@ -29,13 +30,13 @@ func InitializeGameStruct(mapFilepath string) Game {
 		log.Fatal().Err(err).Str("func", "InitializeGameStruct").
 			Msg("Failed to read file")
 	}
-	
+
 	var mm MemoryMap.MemoryMap
 	if err := yaml.Unmarshal(data, &mm); err != nil {
 		log.Fatal().Err(err).Str("func", "InitializeGameStruct").
 			Msg("Failed to unmarshal MemoryMap")
 	}
-	
+
 	var game Game
 	if err := yaml.Unmarshal(data, &game); err != nil {
 		log.Fatal().Err(err).Str("func", "InitializeGameStruct").
@@ -50,10 +51,8 @@ func InitializeGameStruct(mapFilepath string) Game {
 func GetEmulatorGames(emulatorName string) []Game {
 	games := []Game{}
 
-	mapsDir := "/opt/cheat-codex/maps"
-
 	// Read the directory contents
-	entries, err := os.ReadDir(mapsDir)
+	entries, err := os.ReadDir(Config.MapsDirectory)
 	if err != nil {
 		log.Fatal().Err(err).Str("func", "GetEmulatorGames").
 			Msg("Failed to get directory contents")
@@ -63,7 +62,7 @@ func GetEmulatorGames(emulatorName string) []Game {
 		if strings.Contains(entry.Name(), emulatorName) {
 			games = append(
 				games,
-				InitializeGameStruct(filepath.Join(mapsDir, entry.Name())),
+				InitializeGameStruct(filepath.Join(Config.MapsDirectory, entry.Name())),
 			)
 		}
 	}
