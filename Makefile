@@ -5,10 +5,10 @@ RUST_BUILD_OUTPUT_DIR := $(RUST_DIR)target/release/
 RUST_BUILD_OUTPUT_FILE := $(RUST_BUILD_OUTPUT_DIR)cheat-codex-core
 RUST_DST_FILE := cheat-codex-core
 
-TUI_DIR := $(CURRENT_DIR)tui/
+UI_DIR := $(CURRENT_DIR)ui/
 OUTPUT_DIR := $(CURRENT_DIR)build/
-TUI_BUILD_OUTPUT_FILE := $(OUTPUT_DIR)cheat-codex
-TUI_DST_FILE := /usr/bin/cheat-codex
+TUI_BUILD_OUTPUT_FILE := $(OUTPUT_DIR)cheat-codex-tui
+TUI_DST_FILE := /usr/bin/cheat-codex-tui
 
 ## Colors ##
 RED     := \033[0;31m
@@ -35,13 +35,13 @@ prep_build_dirs:
 build_memory_bins:						## Builds memory operation binary
 	$(call start_step_message,"Building Core Memory Operation Binaries '$(RUST_DIR)'")
 	@rustup target add x86_64-pc-windows-gnu x86_64-unknown-linux-gnu
-	@cd $(RUST_DIR) && cargo build --release --target x86_64-pc-windows-gnu
-	@cd $(RUST_DIR) && cargo build --release --target x86_64-unknown-linux-gnu
+	@cd $(RUST_DIR) && cargo build --release --target x86_64-pc-windows-gnu && \
+	cargo build --release --target x86_64-unknown-linux-gnu
 	$(call successful)
 
-build_tui: build_memory_bins			## Builds TUI binary
-	$(call start_step_message,"Building TUI '$(TUI_DIR)'")
-	@cd $(TUI_DIR) && \
+build_tui: #build_memory_bins			## Builds TUI binary
+	$(call start_step_message,"Building TUI '$(UI_DIR)'")
+	@cd $(UI_DIR) && \
 	go mod tidy && go mod vendor && \
 	GOOS=linux GOARCH=arm64 go build -mod=vendor -ldflags="-s -w" -o "${TUI_BUILD_OUTPUT_FILE}_linux-arm64" ./cmd/cheat-codex-tui && \
 	GOOS=linux GOARCH=amd64 go build -mod=vendor -ldflags="-s -w" -o "${TUI_BUILD_OUTPUT_FILE}_linux-amd64" ./cmd/cheat-codex-tui && \
