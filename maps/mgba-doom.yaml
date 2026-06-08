@@ -3,7 +3,7 @@ schema_version: 1
 # Metadata - Descibes the target
 meta:
   name: "Doom"
-  version: 5
+  version: "1.0"
   platform: "GBA"
   emulator: "mGBA"
   process: "mgba"
@@ -16,13 +16,13 @@ groups:
     description: "Core player stats"
     offsets:
       - label: "Health"
-        offset: 0x0
+        offset: 0x4B4
         type: uint16
         min: 0
         max: 200
 
       - label: "Armor"
-        offset: 0x0
+        offset: 0x4B8
         type: uint16
         min: 0
         max: 200
@@ -37,25 +37,25 @@ groups:
     description: "Current ammo counts per weapon type"
     offsets:
       - label: "Bullets"
-        offset: 0x0
+        offset: 0x51C
         type: uint16
         min: 0
         max: 999
 
       - label: "Shells"
-        offset: 0x0
+        offset: 0x520
         type: uint16
         min: 0
         max: 999
 
       - label: "Rockets"
-        offset: 0x0
+        offset: 0x528
         type: uint16
         min: 0
         max: 999
 
       - label: "Plasma Cells"
-        offset: 0x0
+        offset: 0x524
         type: uint16
         min: 0
         max: 999
