@@ -36,6 +36,7 @@ func (h HexOffset) String() string {
 }
 
 type OffsetEntry struct {
+	Group		 string
 	Label        string    `yaml:"label"`
 	Offset       HexOffset `yaml:"offset"`
 	Type         string    `yaml:"type"`
@@ -112,7 +113,7 @@ func (mm MemoryMap) UpdateOffsetEntryByLabel(
 	return fmt.Errorf("No offset entry with label '%s' found...", label)
 }
 
-// Helper function to swap
+// Helper function to swap na offset entry with a matching offset with a new OffsetEntry
 func (mm MemoryMap) UpdateOffsetEntryByOffset(
 	offset string,
 	newEntry OffsetEntry,
@@ -127,4 +128,33 @@ func (mm MemoryMap) UpdateOffsetEntryByOffset(
 	}
 
 	return fmt.Errorf("No offset entry with offset '%s' found...", offset)
+}
+
+func (mm MemoryMap) GenerateOffsetEntryList() []OffsetEntry {
+	var offsetEntryMap = []OffsetEntry{}
+	for _, group := range mm.Groups {
+		for _, entry := range group.Offsets {
+			if entry.ReadOnly {
+				continue
+			}
+			entry.Group = group.Name
+			offsetEntryMap = append(offsetEntryMap, entry)
+		}
+	}
+
+	return offsetEntryMap
+}
+
+func GetOffsetEntriesByGroup(
+	entryList []OffsetEntry,
+	groupName string,
+) []OffsetEntry {
+	entriesOfGroup := []OffsetEntry{}
+	for _, entry := range entryList {
+		if entry.Group == groupName {
+			entriesOfGroup = append(entriesOfGroup, entry)
+		}
+	}
+
+	return entriesOfGroup
 }
