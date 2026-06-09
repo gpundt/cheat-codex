@@ -16,7 +16,7 @@ var (
 	colorMuted     = lipgloss.Color("244")
 
 	// ── Layout constants ─────────────────────────────────────────
-	
+
 
 	// ── Title ───────────────────────────────────────────────────
 	Title = lipgloss.NewStyle().
@@ -26,8 +26,8 @@ var (
 		Background(colorDimGray).
 		Padding(0, 2).
 		Foreground(colorWhite).
-		MarginLeft(5).
-		MarginRight(5)
+		// MarginLeft(10).
+		MarginRight(10)
 
 	// ── Container ────────────────────────────────────────────────
 	Container = lipgloss.NewStyle().
@@ -35,7 +35,8 @@ var (
 			BorderForeground(colorDimPurple).
 			Align(lipgloss.Left).
 			Padding(0, 2).
-			Margin(0, 5, 0, 5) // bottom margin + left margin of 30
+			// MarginLeft(10).
+			MarginRight(10)
 
 	ContainerHeader = lipgloss.NewStyle().
 			Bold(true).
@@ -48,22 +49,23 @@ var (
 			BorderForeground(lipgloss.Color("#04B575")).
 			Align(lipgloss.Left).
 			Padding(0, 2).
-			Margin(0, 5, 0, 5) // bottom margin + left margin of 30
-	
+			// MarginLeft(10).
+			MarginRight(10)
+
 	WarningLogContaner = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.Color("#FF7E00")).
 			Align(lipgloss.Left).
 			Padding(0, 0).
-			Margin(0, 5, 0, 5) // bottom margin + left margin of 30
+			// MarginLeft(10).
+			MarginRight(10)
 	
 	ErrorLogContainer = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.Color("#FF0000")).
 			Align(lipgloss.Left).
 			Padding(0, 2).
-			Margin(0, 5, 0, 5). // bottom margin + left margin of 30
-			MarginLeft(5).
+			// MarginLeft(5).
 			MarginRight(5)
 
 	// ── Footer ───────────────────────────────────────────────────
@@ -72,7 +74,7 @@ var (
 			BorderForeground(colorDimPurple).
 			Background(colorDimGray).
 			Padding(0, 2).
-			MarginLeft(5).
+			// MarginLeft(5).
 			MarginRight(5)
 
 	// ── Input ───────────────────────────────────────────────────
@@ -156,5 +158,5 @@ func RenderFooter(width int, binds [][]string) string {
 	}
 
 	row := lipgloss.JoinHorizontal(lipgloss.Center, parts...)
-	return FooterStyle.Width(width).MarginLeft(5).MarginRight(5).Render(row)
+	return FooterStyle.Width(width).MarginRight(5).Render(row)
 }

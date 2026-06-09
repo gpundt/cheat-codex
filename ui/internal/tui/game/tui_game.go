@@ -16,7 +16,7 @@ import (
 type GameModel struct {
 	ParentModel    tea.Model
 	SelectedGame   Games.Game
-	OffsetEntryList []Memory.OffsetEntry
+	TableRows	   []Memory.TableRow
 	Editing        bool
 	EditInput      textinput.Model
 	LogMessage	   *Config.LogStruct
@@ -41,7 +41,7 @@ func InitializeGameModel(
 	return GameModel{
 		ParentModel:    parentModel,
 		SelectedGame:   selectedGame,
-		OffsetEntryList: selectedGame.Map.GenerateOffsetEntryList(),
+		TableRows: 		selectedGame.Map.GetTableRows(),
 		Editing:        false,
 		EditInput:      ti,
 		LogMessage: 	nil,
@@ -59,62 +59,69 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.String() {
+			case "ctrl+c":
+				return model, tea.Quit
 			case "enter":
 				// Commit the typed value
-				switch model.OffsetEntryList[model.Cursor].Type {
-				case "uint16":
-					newEntry := model.OffsetEntryList[model.Cursor]
-					newVal, err := strconv.ParseUint(
-						model.EditInput.Value(), 10, 16,
-					)
+				switch model.TableRows[model.Cursor].Type {
+				case "uint16", "uint8":
+					var err error = nil
+					if model.TableRows[model.Cursor].Type == "uint16" {
+						_, err = strconv.ParseUint(
+							model.EditInput.Value(), 10, 16,
+						)
+					} else {
+						_, err = strconv.ParseUint(
+							model.EditInput.Value(), 10, 8,
+						)
+					}
 					if err != nil {
 						model.LogMessage = &Config.LogStruct{
 							Severity: "ERROR",
 							Message: err.Error(),
 						}
-						break
+						return model, nil
 					}
-					newEntry.CurrentValue = int(newVal)
-					model.SelectedGame.Map.UpdateOffsetEntryByOffset(
-						newEntry.Offset.String(),
-						newEntry,
-					)
-					model.OffsetEntryList = model.SelectedGame.Map.GenerateOffsetEntryList()
-					model.Editing = false
-					model.EditInput.Blur()
-					return model, cmd
-					
-				case "uint8":
-					newEntry := model.OffsetEntryList[model.Cursor]
-					newVal, err := strconv.ParseUint(
-						model.EditInput.Value(), 10, 8,
-					)
-					if err != nil {
+
+					model.TableRows[model.Cursor].CurrentValue = model.EditInput.Value()
+					if err := model.SelectedGame.Map.UpdateMapFromTableRows(
+						model.TableRows[model.Cursor],
+					); err != nil {
 						model.LogMessage = &Config.LogStruct{
 							Severity: "ERROR",
 							Message: err.Error(),
 						}
-						break
 					}
-					newEntry.CurrentValue = int(newVal)
-					model.SelectedGame.Map.UpdateOffsetEntryByOffset(
-						newEntry.Offset.String(),
-						newEntry,
-					)
-					model.OffsetEntryList = model.SelectedGame.Map.GenerateOffsetEntryList()
+
 					model.Editing = false
 					model.EditInput.Blur()
+
+					model.LogMessage = &Config.LogStruct{
+						Severity: "INFO",
+						Message: fmt.Sprintf(
+							"Set %s to %s",
+							model.TableRows[model.Cursor].Label,
+							model.TableRows[model.Cursor].CurrentValue,
+						),
+					}
 					return model, cmd
 				}
 			case "esc":
 				// Cancel — discard input
 				model.Editing = false
 				model.EditInput.Blur()
+				return model, nil
+
 			default:
 				model.EditInput, cmd = model.EditInput.Update(msg)
-				newValue, err := strconv.Atoi(model.EditInput.Value())
-				if err == nil {
-					model.OffsetEntryList[model.Cursor].CurrentValue = newValue
+				model.TableRows[model.Cursor].CurrentValue = model.EditInput.Value()
+				if err := model.SelectedGame.Map.UpdateMapFromTableRows(
+					model.TableRows[model.Cursor],
+				); err != nil {
+					model.LogMessage = &Config.LogStruct{
+						Severity: "ERROR",
+						Message: err.Error(),
+					}
 				}
 				return model, cmd
 			}
@@ -140,38 +147,50 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				model.Cursor--
 			}
 		case "down":
-			if model.Cursor < len(model.OffsetEntryList)-1 {
+			if model.Cursor < len(model.TableRows)-1 {
 				model.Cursor++
 			}
 			return model, nil
 		case "enter", "space":
-			switch model.OffsetEntryList[model.Cursor].Type {
+			switch model.TableRows[model.Cursor].Type {
 			case "bool":
-				// Calculate new boolean value
-				newEntry := model.OffsetEntryList[model.Cursor]
-				newEntry.CurrentValue ^= 1
-				model.OffsetEntryList[model.Cursor].CurrentValue = newEntry.CurrentValue
+				// Calculate new boolean value and update
+				valueInt, _ := strconv.Atoi(model.TableRows[model.Cursor].CurrentValue)
+				newValue := strconv.Itoa(valueInt ^ 1)
+				model.TableRows[model.Cursor].CurrentValue = newValue
 
 				// Update the entry with matching offset
-				model.SelectedGame.Map.UpdateOffsetEntryByOffset(
-					newEntry.Offset.String(),
-					newEntry,
-				)
+				if err := model.SelectedGame.Map.UpdateMapFromTableRows(
+					model.TableRows[model.Cursor],
+				); err != nil {
+					model.LogMessage = &Config.LogStruct{
+						Severity: "ERROR",
+						Message: err.Error(),
+					}
+				}
 
-				// After update, refresh list of OffsetEntries
-				model.OffsetEntryList = model.SelectedGame.Map.GenerateOffsetEntryList()
+				model.LogMessage = &Config.LogStruct{
+					Severity: "INFO",
+					Message: fmt.Sprintf(
+						"Set %s to %s",
+						model.TableRows[model.Cursor].Label,
+						model.TableRows[model.Cursor].CurrentValue,
+					),
+				}
+
 				return model, nil
 			case "uint16", "uint8":
 				// — enter edit mode ———————————————————
 				model.EditInput.SetValue(
-					fmt.Sprintf("%d", model.OffsetEntryList[model.Cursor].CurrentValue),
+					model.TableRows[model.Cursor].CurrentValue,
 				)
 				model.EditInput.Prompt = fmt.Sprintf(
 					"%-10s:   ",
 					Styles.SelectedItem.Render(
-						strconv.Itoa(model.OffsetEntryList[model.Cursor].CurrentValue),
+						model.TableRows[model.Cursor].CurrentValue,
 					),
 				)
+
 				model.EditInput.Focus()
 				model.Editing = true
 			}
@@ -210,9 +229,9 @@ func (model GameModel) View() string {
 
 	var rowNum = 0
 	var currentGroup = ""
-	for _, offsetEntry := range model.OffsetEntryList {
-		if currentGroup != offsetEntry.Group {
-			currentGroup = offsetEntry.Group
+	for _, row := range model.TableRows {
+		if currentGroup != row.Group {
+			currentGroup = row.Group
 			memoryMapGroup, _ := model.SelectedGame.Map.GetGroup(currentGroup)
 			container = lipgloss.JoinVertical(
 				lipgloss.Left,
@@ -230,25 +249,25 @@ func (model GameModel) View() string {
 		}
 
 		var entryValue = Styles.OffsetEntryValue.Render(
-			fmt.Sprintf("%-14s", strconv.Itoa(offsetEntry.CurrentValue)),
+			fmt.Sprintf("%-14s", row.CurrentValue),
 		)
 		if model.Editing && model.Cursor == rowNum {
 			entryValue = Styles.SelectedEditingItem.Render(
-				strconv.Itoa(offsetEntry.CurrentValue),
+				row.CurrentValue,
 			)
 		}
 		row := lipgloss.JoinHorizontal(
 			lipgloss.Left,
 			cursor,
 			Styles.OffsetEntryLabel.Render(
-				fmt.Sprintf("%-15s", offsetEntry.Label),
+				fmt.Sprintf("%-15s", row.Label),
 			),
 			entryValue,
 			Styles.OffsetEntryMisc.Render(
-				fmt.Sprintf("%-14s", offsetEntry.Offset.String()),
+				fmt.Sprintf("%-14s", row.Offset),
 			),
 			Styles.OffsetEntryMisc.Render(
-				fmt.Sprintf("%-10s", offsetEntry.Type),
+				fmt.Sprintf("%-10s", row.Type),
 			),
 		)
 
@@ -258,8 +277,6 @@ func (model GameModel) View() string {
 			row,
 		)
 		rowNum++
-		
-
 	}
 
 	var logContainer = Styles.InfoLogContainer.Width(model.Width-10).Render("")

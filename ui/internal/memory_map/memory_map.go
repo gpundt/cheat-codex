@@ -130,19 +130,55 @@ func (mm MemoryMap) UpdateOffsetEntryByOffset(
 	return fmt.Errorf("No offset entry with offset '%s' found...", offset)
 }
 
-func (mm MemoryMap) GenerateOffsetEntryList() []OffsetEntry {
-	var offsetEntryMap = []OffsetEntry{}
+
+type TableRow struct {
+	Group string
+	Label string
+	CurrentValue string
+	Offset string
+	Type string
+}
+
+func (mm MemoryMap) GetTableRows() []TableRow {
+	rows := []TableRow{}
 	for _, group := range mm.Groups {
 		for _, entry := range group.Offsets {
 			if entry.ReadOnly {
 				continue
 			}
-			entry.Group = group.Name
-			offsetEntryMap = append(offsetEntryMap, entry)
+
+			rows = append(rows, TableRow{
+				Group: group.Name,
+				Label: entry.Label,
+				CurrentValue: strconv.Itoa(entry.CurrentValue),
+				Offset: entry.Offset.String(),
+				Type: entry.Type,
+			})
 		}
 	}
 
-	return offsetEntryMap
+	return rows
+}
+
+func (mm MemoryMap) UpdateMapFromTableRows(row TableRow) error {
+	for _, group := range mm.Groups {
+		for _, entry := range group.Offsets {
+			if entry.ReadOnly {
+				continue
+			}
+
+			if entry.Offset.String() == row.Offset {
+				var err error
+				entry.CurrentValue, err = strconv.Atoi(row.CurrentValue)
+				if err != nil {
+					return err
+				}
+				return nil
+			}
+		}
+	}
+
+	return fmt.Errorf("No Map entry with offset '%s' found", row.Offset)
 }
 
 func GetOffsetEntriesByGroup(
