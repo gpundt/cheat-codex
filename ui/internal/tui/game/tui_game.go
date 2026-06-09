@@ -187,28 +187,25 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (model GameModel) View() string {
-	title := Styles.Title.Width(model.Width).Render(fmt.Sprintf(
+	title := Styles.Title.Width(model.Width-10).Render(fmt.Sprintf(
 		"%s Memory Modification",
 		model.SelectedGame.Metadata.Name,
 	))
 
-	footer := Styles.RenderFooter(model.Width, [][]string{
+	footer := Styles.RenderFooter(model.Width-10, [][]string{
 		{"↑↓", "navigate"},
 		{"enter/space", "Modify"},
 		{"ctrl+c/esc", "quit"},
 		{"←/q", "back"},
 	})
 
-	container := Styles.ContainerHeader.Width(model.Width).Render(
+	container := Styles.ContainerHeader.Width(model.Width-14).Render(
 		"Modify individual memory addresses:",
 	)
-	container += lipgloss.JoinHorizontal(
-		lipgloss.Left,
-		fmt.Sprintf(
-			"%-15s v%s",
-			model.SelectedGame.Metadata.Name,
-			model.SelectedGame.Metadata.Version,
-		),
+	container += fmt.Sprintf(
+		"\n%-15s v%s\n",
+		model.SelectedGame.Metadata.Name,
+		model.SelectedGame.Metadata.Version,
 	)
 
 	var rowNum = 0
@@ -265,19 +262,19 @@ func (model GameModel) View() string {
 
 	}
 
-	var logContainer = Styles.InfoLogContainer.Render("")
+	var logContainer = Styles.InfoLogContainer.Width(model.Width-10).Render("")
 	if model.LogMessage != nil {
 		switch model.LogMessage.Severity{
 		case "INFO":
-			logContainer = Styles.InfoLogContainer.Render(
+			logContainer = Styles.InfoLogContainer.Width(model.Width-10).Render(
 				model.LogMessage.Message,
 			)
 		case "WARN":
-			logContainer = Styles.WarningLogContaner.Render(
+			logContainer = Styles.WarningLogContaner.Width(model.Width-10).Render(
 				model.LogMessage.Message,
 			)
 		case "ERROR":
-			logContainer = Styles.ErrorLogContainer.Render(
+			logContainer = Styles.ErrorLogContainer.Width(model.Width-10).Render(
 				model.LogMessage.Message,
 			)
 		}

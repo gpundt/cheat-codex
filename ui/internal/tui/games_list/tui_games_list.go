@@ -77,20 +77,20 @@ func (model GamesListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (model GamesListModel) View() string {
-	title := Styles.Title.Render(fmt.Sprintf(
+	title := Styles.Title.Width(model.Width-10).Render(fmt.Sprintf(
 		"Cheat Codex - %s Memory Modification",
 		model.Emulator,
 	))
 
-	footer := Styles.RenderFooter(model.Width, [][]string{
+	footer := Styles.RenderFooter(model.Width-10, [][]string{
 		{"↑↓", "navigate"},
 		{"enter/space/→", "select"},
 		{"ctrl+c/esc", "quit"},
 		{"←/q", "back"},
 	})
 
-	container := Styles.ContainerHeader.Render(fmt.Sprintf(
-		"Select a game for the %s:",
+	container := Styles.ContainerHeader.Width(model.Width-14).Render(fmt.Sprintf(
+		"Select a game for the %s:\n",
 		model.Emulator,
 	))
 	// container += fmt.Sprintf("%#v", model.Choices)

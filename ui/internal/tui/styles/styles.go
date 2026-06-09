@@ -16,10 +16,7 @@ var (
 	colorMuted     = lipgloss.Color("244")
 
 	// ── Layout constants ─────────────────────────────────────────
-	// 110 col terminal: 5 margin | 90 content | 5 margin
-	ContentWidth = 100
-	// Inner width = ContentWidth minus border (2) minus padding (4) = 134
-	InnerWidth = 94
+	
 
 	// ── Title ───────────────────────────────────────────────────
 	Title = lipgloss.NewStyle().
@@ -29,7 +26,6 @@ var (
 		Background(colorDimGray).
 		Padding(0, 2).
 		Foreground(colorWhite).
-		Width(ContentWidth).
 		MarginLeft(5).
 		MarginRight(5)
 
@@ -44,14 +40,13 @@ var (
 	ContainerHeader = lipgloss.NewStyle().
 			Bold(true).
 			Foreground(colorGold).
-			MarginBottom(1)
+			Align(lipgloss.Left)
 
 	// ── Logging ───────────────────────────────────────────────────
 	InfoLogContainer = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.Color("#04B575")).
 			Align(lipgloss.Left).
-			Width(ContentWidth).
 			Padding(0, 2).
 			Margin(0, 5, 0, 5) // bottom margin + left margin of 30
 	
@@ -59,7 +54,6 @@ var (
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.Color("#FF7E00")).
 			Align(lipgloss.Left).
-			Width(ContentWidth).
 			Padding(0, 0).
 			Margin(0, 5, 0, 5) // bottom margin + left margin of 30
 	
@@ -67,7 +61,6 @@ var (
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.Color("#FF0000")).
 			Align(lipgloss.Left).
-			Width(ContentWidth).
 			Padding(0, 2).
 			Margin(0, 5, 0, 5). // bottom margin + left margin of 30
 			MarginLeft(5).
@@ -78,7 +71,6 @@ var (
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(colorDimPurple).
 			Background(colorDimGray).
-			Width(ContentWidth).
 			Padding(0, 2).
 			MarginLeft(5).
 			MarginRight(5)
@@ -102,8 +94,6 @@ var (
 			Foreground(colorGold).
 			PaddingLeft(0).
 			PaddingRight(15)
-			// Width(5).
-			// Height(0)
 
 	UnselectedItem = lipgloss.NewStyle().
 			Foreground(colorDimWhite).

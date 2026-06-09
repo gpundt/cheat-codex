@@ -1,6 +1,7 @@
 package tui_menu
 
 import (
+	// "os"
 	Games "cheat-codex/internal/tui/games_list"
 	IPC "cheat-codex/internal/ipc"
 	Styles "cheat-codex/internal/tui/styles"
@@ -9,6 +10,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	// "golang.org/x/term"
 )
 
 type MenuModel struct {
@@ -20,6 +22,14 @@ type MenuModel struct {
 }
 
 func (model MenuModel) Init() tea.Cmd {
+	// return func() tea.Msg {
+    //     w, h, err := term.GetSize(int(os.Stdout.Fd()))
+    //     if err != nil {
+    //         // Fallback default size if terminal querying fails
+    //         return tea.WindowSizeMsg{Width: 80, Height: 24}
+    //     }
+    //     return tea.WindowSizeMsg{Width: w, Height: h}
+    // }
 	return nil
 }
 
@@ -68,13 +78,13 @@ func (model MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (model MenuModel) View() string {
 	title := Styles.Title.Width(model.Width-10).Render("Cheat Codex - ROM Emulator Hacking TUI")
 
-	footer := Styles.RenderFooter(model.Width, [][]string{
+	footer := Styles.RenderFooter(model.Width-10, [][]string{
 		{"↑↓", "navigate"},
 		{"enter/space/→", "open"},
 		{"ctrl+c/q/esc", "quit"},
 	})
 
-	container := Styles.ContainerHeader.Width(model.Width).Render(
+	container := Styles.ContainerHeader.Width(model.Width-14).Render(
 		"Select an emulator process to attach to:\n",
 	)
 
@@ -108,6 +118,7 @@ func (model MenuModel) View() string {
 				name,
 				pid,
 			)
+			
 			container = lipgloss.JoinVertical(
 				lipgloss.Left,
 				container,
