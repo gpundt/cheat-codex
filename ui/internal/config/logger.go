@@ -8,6 +8,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type LogStruct struct{
+	Severity string
+	Message  string
+}
+
 // Helper function to intialize log string Format
 // Sets up stdout logger
 func InitializeLogger() {

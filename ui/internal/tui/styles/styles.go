@@ -46,6 +46,31 @@ var (
 			Foreground(colorGold).
 			MarginBottom(1)
 
+	// ── Logging ───────────────────────────────────────────────────
+	InfoLogContainer = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("#04B575")).
+			Align(lipgloss.Left).
+			Width(ContentWidth).
+			Padding(0, 2).
+			Margin(0, 0, 1, 5) // bottom margin + left margin of 30
+	
+	WarningLogContaner = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("#FF7E00")).
+			Align(lipgloss.Left).
+			Width(ContentWidth).
+			Padding(0, 0).
+			Margin(0, 0, 0, 5) // bottom margin + left margin of 30
+	
+	ErrorLogContainer = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("#FF0000")).
+			Align(lipgloss.Left).
+			Width(ContentWidth).
+			Padding(0, 2).
+			Margin(0, 0, 1, 5) // bottom margin + left margin of 30
+
 	// ── Footer ───────────────────────────────────────────────────
 	FooterStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
@@ -66,6 +91,16 @@ var (
 			Foreground(colorGold).
 			PaddingLeft(2).
 			PaddingRight(2)
+
+	SelectedEditingItem = lipgloss.NewStyle().
+			Bold(true).
+			Border(lipgloss.RoundedBorder(), false, true, false, true).
+			BorderForeground(colorPurple).
+			Foreground(colorGold).
+			PaddingLeft(0).
+			PaddingRight(15)
+			// Width(5).
+			// Height(0)
 
 	UnselectedItem = lipgloss.NewStyle().
 			Foreground(colorDimWhite).

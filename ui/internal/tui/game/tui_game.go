@@ -2,6 +2,7 @@ package tui_game
 
 import (
 	Games "cheat-codex/internal/games"
+	Config "cheat-codex/internal/config"
 	Memory "cheat-codex/internal/memory_map"
 	Styles "cheat-codex/internal/tui/styles"
 	"fmt"
@@ -18,6 +19,7 @@ type GameModel struct {
 	OffsetEntryList []Memory.OffsetEntry
 	Editing        bool
 	EditInput      textinput.Model
+	LogMessage	   *Config.LogStruct
 	Cursor         int
 	Width          int
 	Height         int
@@ -42,6 +44,7 @@ func InitializeGameModel(
 		OffsetEntryList: selectedGame.Map.GenerateOffsetEntryList(),
 		Editing:        false,
 		EditInput:      ti,
+		LogMessage: 	nil,
 		Cursor:         0,
 		Width:          width,
 		Height:         height,
@@ -65,6 +68,10 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						model.EditInput.Value(), 10, 16,
 					)
 					if err != nil {
+						model.LogMessage = &Config.LogStruct{
+							Severity: "ERROR",
+							Message: err.Error(),
+						}
 						break
 					}
 					newEntry.CurrentValue = int(newVal)
@@ -83,6 +90,10 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						model.EditInput.Value(), 10, 8,
 					)
 					if err != nil {
+						model.LogMessage = &Config.LogStruct{
+							Severity: "ERROR",
+							Message: err.Error(),
+						}
 						break
 					}
 					newEntry.CurrentValue = int(newVal)
@@ -101,19 +112,18 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				model.EditInput.Blur()
 			default:
 				model.EditInput, cmd = model.EditInput.Update(msg)
-				// After update, refresh list of OffsetEntries
-				model.OffsetEntryList = model.SelectedGame.Map.GenerateOffsetEntryList()
+				newValue, err := strconv.Atoi(model.EditInput.Value())
+				if err == nil {
+					model.OffsetEntryList[model.Cursor].CurrentValue = newValue
+				}
 				return model, cmd
 			}
 		default:
 			model.EditInput, cmd = model.EditInput.Update(msg)
-			// After update, refresh list of OffsetEntries
-			model.OffsetEntryList = model.SelectedGame.Map.GenerateOffsetEntryList()
 			return model, cmd
 		}
 
 		// After update, refresh list of OffsetEntries
-		model.OffsetEntryList = model.SelectedGame.Map.GenerateOffsetEntryList()
 		return model, nil
 	}
 
@@ -223,11 +233,11 @@ func (model GameModel) View() string {
 		}
 
 		var entryValue = Styles.OffsetEntryValue.Render(
-			fmt.Sprintf("%-10s", strconv.Itoa(offsetEntry.CurrentValue)),
+			fmt.Sprintf("%-14s", strconv.Itoa(offsetEntry.CurrentValue)),
 		)
 		if model.Editing && model.Cursor == rowNum {
-			entryValue = Styles.SelectedItem.Render(
-				fmt.Sprintf("%-10s", strconv.Itoa(offsetEntry.CurrentValue)),
+			entryValue = Styles.SelectedEditingItem.Render(
+				strconv.Itoa(offsetEntry.CurrentValue),
 			)
 		}
 		row := lipgloss.JoinHorizontal(
@@ -238,7 +248,7 @@ func (model GameModel) View() string {
 			),
 			entryValue,
 			Styles.OffsetEntryMisc.Render(
-				fmt.Sprintf("%-6s", offsetEntry.Offset.String()),
+				fmt.Sprintf("%-14s", offsetEntry.Offset.String()),
 			),
 			Styles.OffsetEntryMisc.Render(
 				fmt.Sprintf("%-10s", offsetEntry.Type),
@@ -255,10 +265,29 @@ func (model GameModel) View() string {
 
 	}
 
+	var logContainer = Styles.InfoLogContainer.Render("")
+	if model.LogMessage != nil {
+		switch model.LogMessage.Severity{
+		case "INFO":
+			logContainer = Styles.InfoLogContainer.Render(
+				model.LogMessage.Message,
+			)
+		case "WARN":
+			logContainer = Styles.WarningLogContaner.Render(
+				model.LogMessage.Message,
+			)
+		case "ERROR":
+			logContainer = Styles.ErrorLogContainer.Render(
+				model.LogMessage.Message,
+			)
+		}
+	}
+
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		title,
 		Styles.Container.Render(container),
+		logContainer,
 		footer,
 	)
 
