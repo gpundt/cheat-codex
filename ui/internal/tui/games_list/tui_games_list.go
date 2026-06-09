@@ -82,7 +82,7 @@ func (model GamesListModel) View() string {
 		model.Emulator,
 	))
 
-	footer := Styles.RenderFooter([][]string{
+	footer := Styles.RenderFooter(model.Width, [][]string{
 		{"↑↓", "navigate"},
 		{"enter/space/→", "select"},
 		{"ctrl+c/esc", "quit"},

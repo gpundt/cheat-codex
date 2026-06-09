@@ -187,19 +187,19 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (model GameModel) View() string {
-	title := Styles.Title.Render(fmt.Sprintf(
+	title := Styles.Title.Width(model.Width).Render(fmt.Sprintf(
 		"%s Memory Modification",
 		model.SelectedGame.Metadata.Name,
 	))
 
-	footer := Styles.RenderFooter([][]string{
+	footer := Styles.RenderFooter(model.Width, [][]string{
 		{"↑↓", "navigate"},
 		{"enter/space", "Modify"},
 		{"ctrl+c/esc", "quit"},
 		{"←/q", "back"},
 	})
 
-	container := Styles.ContainerHeader.Render(
+	container := Styles.ContainerHeader.Width(model.Width).Render(
 		"Modify individual memory addresses:",
 	)
 	container += lipgloss.JoinHorizontal(

@@ -30,16 +30,16 @@ var (
 		Padding(0, 2).
 		Foreground(colorWhite).
 		Width(ContentWidth).
-		MarginLeft(5)
+		MarginLeft(5).
+		MarginRight(5)
 
 	// ── Container ────────────────────────────────────────────────
 	Container = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(colorDimPurple).
 			Align(lipgloss.Left).
-			Width(ContentWidth).
 			Padding(0, 2).
-			Margin(0, 0, 1, 5) // bottom margin + left margin of 30
+			Margin(0, 5, 0, 5) // bottom margin + left margin of 30
 
 	ContainerHeader = lipgloss.NewStyle().
 			Bold(true).
@@ -53,7 +53,7 @@ var (
 			Align(lipgloss.Left).
 			Width(ContentWidth).
 			Padding(0, 2).
-			Margin(0, 0, 1, 5) // bottom margin + left margin of 30
+			Margin(0, 5, 0, 5) // bottom margin + left margin of 30
 	
 	WarningLogContaner = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
@@ -61,7 +61,7 @@ var (
 			Align(lipgloss.Left).
 			Width(ContentWidth).
 			Padding(0, 0).
-			Margin(0, 0, 0, 5) // bottom margin + left margin of 30
+			Margin(0, 5, 0, 5) // bottom margin + left margin of 30
 	
 	ErrorLogContainer = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
@@ -69,7 +69,9 @@ var (
 			Align(lipgloss.Left).
 			Width(ContentWidth).
 			Padding(0, 2).
-			Margin(0, 0, 1, 5) // bottom margin + left margin of 30
+			Margin(0, 5, 0, 5). // bottom margin + left margin of 30
+			MarginLeft(5).
+			MarginRight(5)
 
 	// ── Footer ───────────────────────────────────────────────────
 	FooterStyle = lipgloss.NewStyle().
@@ -78,7 +80,8 @@ var (
 			Background(colorDimGray).
 			Width(ContentWidth).
 			Padding(0, 2).
-			MarginLeft(5)
+			MarginLeft(5).
+			MarginRight(5)
 
 	// ── Input ───────────────────────────────────────────────────
 	Cursor = lipgloss.NewStyle().
@@ -149,7 +152,7 @@ var (
 			Background(colorDimGray)
 )
 
-func RenderFooter(binds [][]string) string {
+func RenderFooter(width int, binds [][]string) string {
 	var parts []string
 	sep := KeySepStyle.Render("·")
 
@@ -163,5 +166,5 @@ func RenderFooter(binds [][]string) string {
 	}
 
 	row := lipgloss.JoinHorizontal(lipgloss.Center, parts...)
-	return FooterStyle.Render(row)
+	return FooterStyle.Width(width).MarginLeft(5).MarginRight(5).Render(row)
 }

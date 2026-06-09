@@ -66,15 +66,15 @@ func (model MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (model MenuModel) View() string {
-	title := Styles.Title.Render("Cheat Codex - ROM Emulator Hacking TUI")
+	title := Styles.Title.Width(model.Width-10).Render("Cheat Codex - ROM Emulator Hacking TUI")
 
-	footer := Styles.RenderFooter([][]string{
+	footer := Styles.RenderFooter(model.Width, [][]string{
 		{"↑↓", "navigate"},
 		{"enter/space/→", "open"},
 		{"ctrl+c/q/esc", "quit"},
 	})
 
-	container := Styles.ContainerHeader.Render(
+	container := Styles.ContainerHeader.Width(model.Width).Render(
 		"Select an emulator process to attach to:\n",
 	)
 
