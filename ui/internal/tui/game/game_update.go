@@ -4,7 +4,7 @@ import (
 	// "fmt"
 	"strconv"
 	
-	Config "cheat-codex/internal/config"
+	// Config "cheat-codex/internal/config"
 )
 
 // Helper function to parse uint from EditInput value and commit to memory map
@@ -20,7 +20,6 @@ func (model GameModel) updateUint() error {
 		)
 	}
 	if err != nil {
-		model = model.updateLogMessage("ERROR", err.Error())
 		return err
 	}
 
@@ -33,7 +32,6 @@ func (model GameModel) updateUint() error {
 
 	model.Editing = false
 	model.EditInput.Blur()
-
 
 	return nil
 }
@@ -49,16 +47,6 @@ func (model GameModel) updateBool() {
 	if err := model.SelectedGame.Map.UpdateMapFromTableRows(
 		model.TableRows[model.Cursor],
 	); err != nil {
-		model = model.updateLogMessage("ERROR", err.Error())
 		return
 	}
-}
-
-// Helper function to update model's current LogMessage
-func (model GameModel) updateLogMessage(severity, message string) GameModel {
-	model.LogMessage = Config.LogStruct{
-		Severity: severity,
-		Message: message,
-	}
-	return model
 }

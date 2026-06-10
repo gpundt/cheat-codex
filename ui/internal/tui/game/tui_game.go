@@ -77,18 +77,20 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				switch model.TableRows[model.Cursor].Type {
 				case "uint16", "uint8":
 					if err := model.updateUint(); err != nil {
-						model = model.updateLogMessage("ERROR", err.Error())
+						model.LogMessage = Config.LogStruct{
+							Severity: "ERROR", Message: err.Error(),
+						}
 						return model, nil
 					}
 
-					model = model.updateLogMessage(
-						"INFO",
-						fmt.Sprintf(
+					model.LogMessage = Config.LogStruct{
+						Severity: "INFO",
+						Message:   fmt.Sprintf(
 							"Set %s to %s",
 							model.TableRows[model.Cursor].Label,
-							model.TableRows[model.Cursor].CurrentValue,
+							model.TableRows[model.Cursor]. CurrentValue,
 						),
-					)
+					}
 					model.Editing = false
 					model.EditInput.Blur()
 					model.Viewport.SetContent(model.generateTableContent())
@@ -102,7 +104,9 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if err := model.SelectedGame.Map.UpdateMapFromTableRows(
 					model.TableRows[model.Cursor],
 				); err != nil {
-					model.updateLogMessage("ERROR", err.Error())
+					model.LogMessage = Config.LogStruct{
+						Severity: "ERROR", Message: err.Error(),
+					}
 				}
 				model.Viewport.SetContent(model.generateTableContent())
 				return model, cmd
@@ -139,14 +143,14 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch model.TableRows[model.Cursor].Type {
 			case "bool":
 				model.updateBool()
-				model = model.updateLogMessage(
-					"INFO",
-					fmt.Sprintf(
+				model.LogMessage = Config.LogStruct{
+					Severity: "INFO",
+					Message:   fmt.Sprintf(
 						"Set %s to %s",
 						model.TableRows[model.Cursor].Label,
 						model.TableRows[model.Cursor]. CurrentValue,
 					),
-				)
+				}
 				model.Viewport.SetContent(model.generateTableContent())
 
 			case "uint16", "uint8":
