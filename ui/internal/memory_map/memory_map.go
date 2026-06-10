@@ -36,7 +36,7 @@ func (h HexOffset) String() string {
 }
 
 type OffsetEntry struct {
-	Group		 string
+	Group        string
 	Label        string    `yaml:"label"`
 	Offset       HexOffset `yaml:"offset"`
 	Type         string    `yaml:"type"`
@@ -130,13 +130,12 @@ func (mm MemoryMap) UpdateOffsetEntryByOffset(
 	return fmt.Errorf("No offset entry with offset '%s' found...", offset)
 }
 
-
 type TableRow struct {
-	Group string
-	Label string
+	Group        string
+	Label        string
 	CurrentValue string
-	Offset string
-	Type string
+	Offset       string
+	Type         string
 }
 
 func (mm MemoryMap) GetTableRows() []TableRow {
@@ -148,11 +147,11 @@ func (mm MemoryMap) GetTableRows() []TableRow {
 			}
 
 			rows = append(rows, TableRow{
-				Group: group.Name,
-				Label: entry.Label,
+				Group:        group.Name,
+				Label:        entry.Label,
 				CurrentValue: strconv.Itoa(entry.CurrentValue),
-				Offset: entry.Offset.String(),
-				Type: entry.Type,
+				Offset:       entry.Offset.String(),
+				Type:         entry.Type,
 			})
 		}
 	}
@@ -161,18 +160,20 @@ func (mm MemoryMap) GetTableRows() []TableRow {
 }
 
 func (mm MemoryMap) UpdateMapFromTableRows(row TableRow) error {
-	for _, group := range mm.Groups {
-		for _, entry := range group.Offsets {
+	for groupIndex := range mm.Groups {
+		for entryIndex := range mm.Groups[groupIndex].Offsets {
+			entry := &mm.Groups[groupIndex].Offsets[entryIndex]
 			if entry.ReadOnly {
 				continue
 			}
 
 			if entry.Offset.String() == row.Offset {
 				var err error
-				entry.CurrentValue, err = strconv.Atoi(row.CurrentValue)
+				val, err := strconv.Atoi(row.CurrentValue)
 				if err != nil {
 					return err
 				}
+				entry.CurrentValue = val
 				return nil
 			}
 		}

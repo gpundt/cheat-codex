@@ -1,9 +1,9 @@
 package tui_games_list
 
 import (
-	Styles "cheat-codex/internal/tui/styles"
 	Games "cheat-codex/internal/games"
 	Game "cheat-codex/internal/tui/game"
+	Styles "cheat-codex/internal/tui/styles"
 	"fmt"
 	"strconv"
 
@@ -13,11 +13,11 @@ import (
 
 type GamesListModel struct {
 	ParentModel tea.Model
-	Emulator string
-	Choices []Games.Game
-	Cursor int
-	Width int
-	Height int
+	Emulator    string
+	Choices     []Games.Game
+	Cursor      int
+	Width       int
+	Height      int
 }
 
 func (model GamesListModel) Init() tea.Cmd {
@@ -29,14 +29,14 @@ func InitializeGamesListModel(
 	emulator string,
 	width,
 	height int,
-	) GamesListModel {
+) GamesListModel {
 	return GamesListModel{
 		ParentModel: parentModel,
-		Emulator: emulator,
-		Choices: Games.GetEmulatorGames(emulator),
-		Cursor: 0,
-		Width: width,
-		Height: height,
+		Emulator:    emulator,
+		Choices:     Games.GetEmulatorGames(emulator),
+		Cursor:      0,
+		Width:       width,
+		Height:      height,
 	}
 }
 
@@ -77,7 +77,7 @@ func (model GamesListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (model GamesListModel) View() string {
-	title := Styles.Title.Width(model.Width-10).Render(fmt.Sprintf(
+	title := Styles.Title.Width(model.Width - 10).Render(fmt.Sprintf(
 		"Cheat Codex - %s Memory Modification",
 		model.Emulator,
 	))
@@ -89,7 +89,7 @@ func (model GamesListModel) View() string {
 		{"←/q", "back"},
 	})
 
-	container := Styles.ContainerHeader.Width(model.Width-14).Render(fmt.Sprintf(
+	container := Styles.ContainerHeader.Width(model.Width - 14).Render(fmt.Sprintf(
 		"Select a game for the %s:\n",
 		model.Emulator,
 	))

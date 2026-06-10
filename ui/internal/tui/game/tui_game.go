@@ -1,28 +1,30 @@
 package tui_game
 
 import (
-	Games "cheat-codex/internal/games"
 	Config "cheat-codex/internal/config"
+	Games "cheat-codex/internal/games"
 	Memory "cheat-codex/internal/memory_map"
 	Styles "cheat-codex/internal/tui/styles"
 	"fmt"
 	"strconv"
 
 	"github.com/charmbracelet/bubbles/textinput"
+	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
 type GameModel struct {
-	ParentModel    tea.Model
-	SelectedGame   Games.Game
-	TableRows	   []Memory.TableRow
-	Editing        bool
-	EditInput      textinput.Model
-	LogMessage	   *Config.LogStruct
-	Cursor         int
-	Width          int
-	Height         int
+	ParentModel  tea.Model
+	SelectedGame Games.Game
+	TableRows    []Memory.TableRow
+	Viewport     viewport.Model
+	Editing      bool
+	EditInput    textinput.Model
+	LogMessage   *Config.LogStruct
+	Cursor       int
+	Width        int
+	Height       int
 }
 
 func (model GameModel) Init() tea.Cmd {
@@ -38,22 +40,30 @@ func InitializeGameModel(
 	ti := textinput.New()
 	ti.CharLimit = 128
 
-	return GameModel{
-		ParentModel:    parentModel,
-		SelectedGame:   selectedGame,
-		TableRows: 		selectedGame.Map.GetTableRows(),
-		Editing:        false,
-		EditInput:      ti,
-		LogMessage: 	nil,
-		Cursor:         0,
-		Width:          width,
-		Height:         height,
+	model := GameModel{
+		ParentModel:  parentModel,
+		SelectedGame: selectedGame,
+		TableRows:    selectedGame.Map.GetTableRows(),
+		Editing:      false,
+		EditInput:    ti,
+		LogMessage:   nil,
+		Cursor:       0,
+		Width:        width,
+		Height:       height,
 	}
+
+	vp := viewport.New(width-10, 30)
+	vp.SetContent(model.generateTableContent())
+	model.Viewport = vp
+	return model
 }
 
 func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
-	
+	var (
+		cmd  tea.Cmd
+		cmds []tea.Cmd
+	)
+
 	// --- Edit Mode --- Intercept all keys for the text input
 	if model.Editing {
 		switch msg := msg.(type) {
@@ -78,7 +88,7 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					if err != nil {
 						model.LogMessage = &Config.LogStruct{
 							Severity: "ERROR",
-							Message: err.Error(),
+							Message:  err.Error(),
 						}
 						return model, nil
 					}
@@ -89,7 +99,7 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					); err != nil {
 						model.LogMessage = &Config.LogStruct{
 							Severity: "ERROR",
-							Message: err.Error(),
+							Message:  err.Error(),
 						}
 					}
 
@@ -120,7 +130,7 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				); err != nil {
 					model.LogMessage = &Config.LogStruct{
 						Severity: "ERROR",
-						Message: err.Error(),
+						Message:  err.Error(),
 					}
 				}
 				return model, cmd
@@ -145,10 +155,14 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "up":
 			if model.Cursor > 0 {
 				model.Cursor--
+				model.Viewport.ScrollUp(1)
 			}
+			return model, nil
+
 		case "down":
 			if model.Cursor < len(model.TableRows)-1 {
 				model.Cursor++
+				model.Viewport.ScrollDown(1)
 			}
 			return model, nil
 		case "enter", "space":
@@ -165,7 +179,7 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				); err != nil {
 					model.LogMessage = &Config.LogStruct{
 						Severity: "ERROR",
-						Message: err.Error(),
+						Message:  err.Error(),
 					}
 				}
 
@@ -197,16 +211,23 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case tea.WindowSizeMsg:
-		model.Width = msg.Width
-		model.Height = msg.Height
+		// model.Width = msg.Width
+		// model.Height = msg.Height
+
+		// model.Viewport.Width = model.Width - 10
+		// model.Viewport.Height = 30
+		model.Viewport.Width = msg.Width - 10
+		model.Viewport.Height = msg.Height - 30
 		return model, nil
 	}
 
-	return model, nil
+	model.Viewport, cmd = model.Viewport.Update(msg)
+	cmds = append(cmds, cmd)
+	return model, tea.Batch(cmds...)
 }
 
 func (model GameModel) View() string {
-	title := Styles.Title.Width(model.Width-10).Render(fmt.Sprintf(
+	title := Styles.Title.Width(model.Width - 10).Render(fmt.Sprintf(
 		"%s Memory Modification",
 		model.SelectedGame.Metadata.Name,
 	))
@@ -218,7 +239,37 @@ func (model GameModel) View() string {
 		{"←/q", "back"},
 	})
 
-	container := Styles.ContainerHeader.Width(model.Width-14).Render(
+	container := model.generateTableContent()
+
+	var logContainer = Styles.InfoLogContainer.Width(model.Width - 10).Render("")
+	if model.LogMessage != nil {
+		switch model.LogMessage.Severity {
+		case "INFO":
+			logContainer = Styles.InfoLogContainer.Width(model.Width - 10).Render(
+				model.LogMessage.Message,
+			)
+		case "WARN":
+			logContainer = Styles.WarningLogContaner.Width(model.Width - 10).Render(
+				model.LogMessage.Message,
+			)
+		case "ERROR":
+			logContainer = Styles.ErrorLogContainer.Width(model.Width - 10).Render(
+				model.LogMessage.Message,
+			)
+		}
+	}
+
+	return lipgloss.JoinVertical(
+		lipgloss.Left,
+		title,
+		container,
+		logContainer,
+		footer,
+	)
+}
+
+func (model GameModel) generateTableContent() string {
+	container := Styles.ContainerHeader.Width(model.Width - 14).Render(
 		"Modify individual memory addresses:",
 	)
 	container += fmt.Sprintf(
@@ -229,9 +280,9 @@ func (model GameModel) View() string {
 
 	var rowNum = 0
 	var currentGroup = ""
-	for _, row := range model.TableRows {
-		if currentGroup != row.Group {
-			currentGroup = row.Group
+	for _, tableRow := range model.TableRows {
+		if currentGroup != tableRow.Group {
+			currentGroup = tableRow.Group
 			memoryMapGroup, _ := model.SelectedGame.Map.GetGroup(currentGroup)
 			container = lipgloss.JoinVertical(
 				lipgloss.Left,
@@ -249,60 +300,30 @@ func (model GameModel) View() string {
 		}
 
 		var entryValue = Styles.OffsetEntryValue.Render(
-			fmt.Sprintf("%-14s", row.CurrentValue),
+			fmt.Sprintf("%-14s", tableRow.CurrentValue),
 		)
 		if model.Editing && model.Cursor == rowNum {
 			entryValue = Styles.SelectedEditingItem.Render(
-				row.CurrentValue,
+				tableRow.CurrentValue,
 			)
 		}
-		row := lipgloss.JoinHorizontal(
+
+		renderedRow := lipgloss.JoinHorizontal(
 			lipgloss.Left,
 			cursor,
-			Styles.OffsetEntryLabel.Render(
-				fmt.Sprintf("%-15s", row.Label),
-			),
+			Styles.OffsetEntryLabel.Render(fmt.Sprintf("%-15s", tableRow.Label)),
 			entryValue,
-			Styles.OffsetEntryMisc.Render(
-				fmt.Sprintf("%-14s", row.Offset),
-			),
-			Styles.OffsetEntryMisc.Render(
-				fmt.Sprintf("%-10s", row.Type),
-			),
+			Styles.OffsetEntryMisc.Render(fmt.Sprintf("%-14s", tableRow.Offset)),
+			Styles.OffsetEntryMisc.Render(fmt.Sprintf("%-10s", tableRow.Type)),
 		)
 
 		container = lipgloss.JoinVertical(
 			lipgloss.Left,
 			container,
-			row,
+			renderedRow,
 		)
 		rowNum++
 	}
 
-	var logContainer = Styles.InfoLogContainer.Width(model.Width-10).Render("")
-	if model.LogMessage != nil {
-		switch model.LogMessage.Severity{
-		case "INFO":
-			logContainer = Styles.InfoLogContainer.Width(model.Width-10).Render(
-				model.LogMessage.Message,
-			)
-		case "WARN":
-			logContainer = Styles.WarningLogContaner.Width(model.Width-10).Render(
-				model.LogMessage.Message,
-			)
-		case "ERROR":
-			logContainer = Styles.ErrorLogContainer.Width(model.Width-10).Render(
-				model.LogMessage.Message,
-			)
-		}
-	}
-
-	return lipgloss.JoinVertical(
-		lipgloss.Left,
-		title,
-		Styles.Container.Render(container),
-		logContainer,
-		footer,
-	)
-
+	return Styles.Container.Width(model.Width - 10).Render(container)
 }
