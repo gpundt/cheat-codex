@@ -6,7 +6,6 @@ import (
 	Memory "cheat-codex/internal/memory_map"
 	Styles "cheat-codex/internal/tui/styles"
 	"fmt"
-	"strconv"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
@@ -21,7 +20,7 @@ type GameModel struct {
 	Viewport     viewport.Model
 	Editing      bool
 	EditInput    textinput.Model
-	LogMessage   *Config.LogStruct
+	LogMessage   Config.LogStruct
 	Cursor       int
 	Width        int
 	Height       int
@@ -46,7 +45,10 @@ func InitializeGameModel(
 		TableRows:    selectedGame.Map.GetTableRows(),
 		Editing:      false,
 		EditInput:    ti,
-		LogMessage:   nil,
+		LogMessage:   Config.LogStruct{
+			Severity: "INFO",
+			Message: "",
+		},
 		Cursor:       0,
 		Width:        width,
 		Height:       height,
@@ -64,64 +66,35 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds []tea.Cmd
 	)
 
-	// --- Edit Mode --- Intercept all keys for the text input
 	if model.Editing {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.String() {
 			case "ctrl+c":
 				return model, tea.Quit
-			case "enter":
+			case "enter", "esc":
 				// Commit the typed value
 				switch model.TableRows[model.Cursor].Type {
 				case "uint16", "uint8":
-					var err error = nil
-					if model.TableRows[model.Cursor].Type == "uint16" {
-						_, err = strconv.ParseUint(
-							model.EditInput.Value(), 10, 16,
-						)
-					} else {
-						_, err = strconv.ParseUint(
-							model.EditInput.Value(), 10, 8,
-						)
-					}
-					if err != nil {
-						model.LogMessage = &Config.LogStruct{
-							Severity: "ERROR",
-							Message:  err.Error(),
-						}
+					if err := model.updateUint(); err != nil {
+						model = model.updateLogMessage("ERROR", err.Error())
 						return model, nil
 					}
 
-					model.TableRows[model.Cursor].CurrentValue = model.EditInput.Value()
-					if err := model.SelectedGame.Map.UpdateMapFromTableRows(
-						model.TableRows[model.Cursor],
-					); err != nil {
-						model.LogMessage = &Config.LogStruct{
-							Severity: "ERROR",
-							Message:  err.Error(),
-						}
-					}
-
-					model.Editing = false
-					model.EditInput.Blur()
-
-					model.LogMessage = &Config.LogStruct{
-						Severity: "INFO",
-						Message: fmt.Sprintf(
+					model = model.updateLogMessage(
+						"INFO",
+						fmt.Sprintf(
 							"Set %s to %s",
 							model.TableRows[model.Cursor].Label,
 							model.TableRows[model.Cursor].CurrentValue,
 						),
-					}
+					)
+					model.Editing = false
+					model.EditInput.Blur()
 					model.Viewport.SetContent(model.generateTableContent())
+					
 					return model, cmd
 				}
-			case "esc":
-				// Cancel — discard input
-				model.Editing = false
-				model.EditInput.Blur()
-				return model, nil
 
 			default:
 				model.EditInput, cmd = model.EditInput.Update(msg)
@@ -129,10 +102,7 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if err := model.SelectedGame.Map.UpdateMapFromTableRows(
 					model.TableRows[model.Cursor],
 				); err != nil {
-					model.LogMessage = &Config.LogStruct{
-						Severity: "ERROR",
-						Message:  err.Error(),
-					}
+					model.updateLogMessage("ERROR", err.Error())
 				}
 				model.Viewport.SetContent(model.generateTableContent())
 				return model, cmd
@@ -142,7 +112,6 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return model, cmd
 		}
 
-		// After update, refresh list of OffsetEntries
 		return model, nil
 	}
 
@@ -160,7 +129,6 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				model.Viewport.SetContent(model.generateTableContent())
 			}
 
-
 		case "down":
 			if model.Cursor < len(model.TableRows)-1 {
 				model.Cursor++
@@ -170,29 +138,15 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter", "space":
 			switch model.TableRows[model.Cursor].Type {
 			case "bool":
-				// Calculate new boolean value and update
-				valueInt, _ := strconv.Atoi(model.TableRows[model.Cursor].CurrentValue)
-				newValue := strconv.Itoa(valueInt ^ 1)
-				model.TableRows[model.Cursor].CurrentValue = newValue
-
-				// Update the entry with matching offset
-				if err := model.SelectedGame.Map.UpdateMapFromTableRows(
-					model.TableRows[model.Cursor],
-				); err != nil {
-					model.LogMessage = &Config.LogStruct{
-						Severity: "ERROR",
-						Message:  err.Error(),
-					}
-				}
-
-				model.LogMessage = &Config.LogStruct{
-					Severity: "INFO",
-					Message: fmt.Sprintf(
+				model.updateBool()
+				model = model.updateLogMessage(
+					"INFO",
+					fmt.Sprintf(
 						"Set %s to %s",
 						model.TableRows[model.Cursor].Label,
-						model.TableRows[model.Cursor].CurrentValue,
+						model.TableRows[model.Cursor]. CurrentValue,
 					),
-				}
+				)
 				model.Viewport.SetContent(model.generateTableContent())
 
 			case "uint16", "uint8":
@@ -239,21 +193,19 @@ func (model GameModel) View() string {
 	container := model.Viewport.View()
 
 	var logContainer = Styles.InfoLogContainer.Width(model.Width - 10).Render("")
-	if model.LogMessage != nil {
-		switch model.LogMessage.Severity {
-		case "INFO":
-			logContainer = Styles.InfoLogContainer.Width(model.Width - 10).Render(
-				model.LogMessage.Message,
-			)
-		case "WARN":
-			logContainer = Styles.WarningLogContaner.Width(model.Width - 10).Render(
-				model.LogMessage.Message,
-			)
-		case "ERROR":
-			logContainer = Styles.ErrorLogContainer.Width(model.Width - 10).Render(
-				model.LogMessage.Message,
-			)
-		}
+	switch model.LogMessage.Severity {
+	case "INFO":
+		logContainer = Styles.InfoLogContainer.Width(model.Width - 10).Render(
+			model.LogMessage.Message,
+		)
+	case "WARN":
+		logContainer = Styles.WarningLogContaner.Width(model.Width - 10).Render(
+			model.LogMessage.Message,
+		)
+	case "ERROR":
+		logContainer = Styles.ErrorLogContainer.Width(model.Width - 10).Render(
+			model.LogMessage.Message,
+		)
 	}
 
 	return lipgloss.JoinVertical(

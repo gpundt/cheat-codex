@@ -22,14 +22,6 @@ type MenuModel struct {
 }
 
 func (model MenuModel) Init() tea.Cmd {
-	// return func() tea.Msg {
-    //     w, h, err := term.GetSize(int(os.Stdout.Fd()))
-    //     if err != nil {
-    //         // Fallback default size if terminal querying fails
-    //         return tea.WindowSizeMsg{Width: 80, Height: 24}
-    //     }
-    //     return tea.WindowSizeMsg{Width: w, Height: h}
-    // }
 	return nil
 }
 
