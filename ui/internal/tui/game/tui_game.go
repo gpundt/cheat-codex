@@ -52,7 +52,7 @@ func InitializeGameModel(
 		Height:       height,
 	}
 
-	vp := viewport.New(width-10, 30)
+	vp := viewport.New(width-10, 20)
 	vp.SetContent(model.generateTableContent())
 	model.Viewport = vp
 	return model
@@ -114,6 +114,7 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 							model.TableRows[model.Cursor].CurrentValue,
 						),
 					}
+					model.Viewport.SetContent(model.generateTableContent())
 					return model, cmd
 				}
 			case "esc":
@@ -133,6 +134,7 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						Message:  err.Error(),
 					}
 				}
+				model.Viewport.SetContent(model.generateTableContent())
 				return model, cmd
 			}
 		default:
@@ -155,16 +157,16 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "up":
 			if model.Cursor > 0 {
 				model.Cursor--
-				model.Viewport.ScrollUp(1)
+				model.Viewport.SetContent(model.generateTableContent())
 			}
-			return model, nil
+
 
 		case "down":
 			if model.Cursor < len(model.TableRows)-1 {
 				model.Cursor++
-				model.Viewport.ScrollDown(1)
+				model.Viewport.SetContent(model.generateTableContent())
 			}
-			return model, nil
+
 		case "enter", "space":
 			switch model.TableRows[model.Cursor].Type {
 			case "bool":
@@ -191,8 +193,8 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						model.TableRows[model.Cursor].CurrentValue,
 					),
 				}
+				model.Viewport.SetContent(model.generateTableContent())
 
-				return model, nil
 			case "uint16", "uint8":
 				// — enter edit mode ———————————————————
 				model.EditInput.SetValue(
@@ -207,18 +209,13 @@ func (model GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				model.EditInput.Focus()
 				model.Editing = true
+				model.Viewport.SetContent(model.generateTableContent())
 			}
 		}
 
 	case tea.WindowSizeMsg:
-		// model.Width = msg.Width
-		// model.Height = msg.Height
-
-		// model.Viewport.Width = model.Width - 10
-		// model.Viewport.Height = 30
 		model.Viewport.Width = msg.Width - 10
 		model.Viewport.Height = msg.Height - 30
-		return model, nil
 	}
 
 	model.Viewport, cmd = model.Viewport.Update(msg)
@@ -239,7 +236,7 @@ func (model GameModel) View() string {
 		{"←/q", "back"},
 	})
 
-	container := model.generateTableContent()
+	container := model.Viewport.View()
 
 	var logContainer = Styles.InfoLogContainer.Width(model.Width - 10).Render("")
 	if model.LogMessage != nil {
@@ -325,5 +322,5 @@ func (model GameModel) generateTableContent() string {
 		rowNum++
 	}
 
-	return Styles.Container.Width(model.Width - 10).Render(container)
+	return Styles.Container.Width(model.Width - 12).Render(container)
 }
