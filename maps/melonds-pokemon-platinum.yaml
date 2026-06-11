@@ -11,3 +11,209 @@ meta:
 
 # Groups - organize offsets into logical sections
 groups:
+
+  - name: "Player"
+    description: "Player Data"
+    offsets:
+      - label: "Name"
+        offset: 0x01
+        type: uint64
+      
+      - label: "Money (byte 1)"
+        offset: 0x02
+        type: uint8
+      
+      - label: "Money (byte 2)"
+        offset: 0x03
+        type: uint8
+      
+      - label: "Money (byte 3)"
+        offset: 0xAA
+        type: uint8
+  
+  - name: "Player Pokemon 1"
+    description: "Player Pokemon 1 Data"
+    offsets:
+      - label: "Name"
+        offset: 0x04
+        type: uint64
+
+      - label: "Level"
+        offset: 0x05
+        type: uint8
+      
+      - label: "HP"
+        offset: 0x06
+        type: uint32
+  
+  - name: "Player Pokemon 2"
+    description: "Player Pokemon 2 Data"
+    offsets:
+      - label: "Name"
+        offset: 0x07
+        type: uint64
+
+      - label: "Level"
+        offset: 0x08
+        type: uint8
+      
+      - label: "HP"
+        offset: 0x09
+        type: uint32
+  
+  - name: "Player Pokemon 3"
+    description: "Player Pokemon 3 Data"
+    offsets:
+      - label: "Name"
+        offset: 0x0A
+        type: uint64
+
+      - label: "Level"
+        offset: 0x0B
+        type: uint8
+      
+      - label: "HP"
+        offset: 0x0C
+        type: uint32
+  
+  - name: "Player Pokemon 4"
+    description: "Player Pokemon 4 Data"
+    offsets:
+      - label: "Name"
+        offset: 0x0D
+        type: uint64
+
+      - label: "Level"
+        offset: 0x0E
+        type: uint8
+      
+      - label: "HP"
+        offset: 0x0F
+        type: uint32
+  
+  - name: "Player Pokemon 5"
+    description: "Player Pokemon 5 Data"
+    offsets:
+      - label: "Name"
+        offset: 0x10
+        type: uint64
+
+      - label: "Level"
+        offset: 0x11
+        type: uint8
+      
+      - label: "HP"
+        offset: 0x12
+        type: uint32
+  
+  - name: "Player Pokemon 6"
+    description: "Player Pokemon 6 Data"
+    offsets:
+      - label: "Name"
+        offset: 0x13
+        type: uint64
+
+      - label: "Level"
+        offset: 0x14
+        type: uint8
+      
+      - label: "HP"
+        offset: 0x15
+        type: uint32
+  
+  - name: "Rival"
+    description: "Rival Data"
+    offsets:
+      - label: "Name"
+        offset: 0x16
+        type: uint64
+  
+  - name: "Rival Pokemon 1"
+    description: "Rival Pokemon 1 Data"
+    offsets:
+      - label: "Name"
+        offset: 0x17
+        type: uint64
+
+      - label: "Level"
+        offset: 0x18
+        type: uint8
+      
+      - label: "HP"
+        offset: 0x19
+        type: uint32
+  
+  - name: "Rival Pokemon 2"
+    description: "Rival Pokemon 2 Data"
+    offsets:
+      - label: "Name"
+        offset: 0x1A
+        type: uint64
+
+      - label: "Level"
+        offset: 0x1B
+        type: uint8
+      
+      - label: "HP"
+        offset: 0x1C
+        type: uint32
+  
+  - name: "Rival Pokemon 3"
+    description: "Rival Pokemon 3 Data"
+    offsets:
+      - label: "Name"
+        offset: 0x1D
+        type: uint64
+
+      - label: "Level"
+        offset: 0x1E
+        type: uint8
+      
+      - label: "HP"
+        offset: 0x1F
+        type: uint32
+  
+  - name: "Rival Pokemon 4"
+    description: "Rival Pokemon 4 Data"
+    offsets:
+      - label: "Name"
+        offset: 0x20
+        type: uint64
+
+      - label: "Level"
+        offset: 0x21
+        type: uint8
+      
+      - label: "HP"
+        offset: 0x22
+        type: uint32
+  
+  - name: "Rival Pokemon 5"
+    description: "Rival Pokemon 5 Data"
+    offsets:
+      - label: "Name"
+        offset: 0x23
+        type: uint64
+
+      - label: "Level"
+        offset: 0x24
+        type: uint8
+      
+      - label: "HP"
+        offset: 0x25
+        type: uint32
+  
+  - name: "Rival Pokemon 6"
+    description: "Rival Pokemon 6 Data"
+    offsets:
+      - label: "Name"
+        offset: 0x26
+        type: uint64
+
+      - label: "Level"
+        offset: 0x27
+        type: uint8
+      
+      - label: "HP"
+        offset: 0x28
+        type: uint32
